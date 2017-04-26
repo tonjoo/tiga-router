@@ -1,5 +1,7 @@
 <?php
 
+require WORDPRESS_ROUTER_PATH.'inc/class/RouteParser.php';
+
 /**
  * The Router manages routes using the WordPress rewrite API.
  *
@@ -22,6 +24,13 @@ class Router
     private $route_variable;
 
     /**
+     * Prefix for query var
+     *
+     * @var string
+     */
+    private $var_prefix;
+
+    /**
      * Constructor.
      *
      * @param string  $route_variable
@@ -30,8 +39,9 @@ class Router
     public function __construct($route_variable = 'route_name', array $routes = array())
     {
         $this->routes = array();
+        $this->routeParser = new RouteParser();
         $this->route_variable = $route_variable;
-
+        $this->var_prefix = 'tj_';
         foreach ($routes as $name => $route) {
             $this->add_route($name, $route);
         }
@@ -90,7 +100,40 @@ class Router
             return new WP_Error('route_not_found');
         }
 
+        global $tiga_request;
+        $tiga_request = array();
+        foreach ($query_variables as $key => $value) {
+            if (strpos($key,$this->var_prefix) === 0) {
+                $tiga_request[str_replace($this->var_prefix, '', $key)] = $value;
+            }
+        }
+        $get    = $_GET;
+        $post   = $_POST;
+        $tiga_request = array_merge($tiga_request, $get, $post);
+
         return $this->routes[$route_name];
+    }
+
+    /**
+     * Convert shortcode of regex in route
+     * @param string $route 
+     * @return type
+     */
+    public function convertRouteParam($route) 
+    {
+
+        $patterns = array(
+            ':any?' => ':[a-zA-Z0-9\.\-_%=]?+', 
+            ':num?' => ':[0-9]?+', 
+            ':all?' => ':.?*',
+            ':num' => ':[0-9]+', 
+            ':any' => ':[a-zA-Z0-9\.\-_%=]+', 
+            ':all' => ':.*',
+        );
+
+        $route = str_replace(array_keys($patterns), array_values($patterns), $route);
+
+        return $route;
     }
 
     /**
@@ -102,7 +145,8 @@ class Router
      */
     private function add_rule($name, Route $route, $position = 'top')
     {
-        add_rewrite_rule($this->generate_route_regex($route), 'index.php?'.$this->route_variable.'='.$name, $position);
+        $routeData = $this->routeParser->parse(trim($this->convertRouteParam($route->get_path())));
+        add_rewrite_rule($this->generate_route_regex($routeData), 'index.php?'.$this->route_variable.'='.$name.$this->extract_params($routeData), $position);
     }
 
     /**
@@ -112,8 +156,29 @@ class Router
      *
      * @return string
      */
-    private function generate_route_regex(Route $route)
+    private function generate_route_regex($routeData)
     {
-        return '^'.ltrim(trim($route->get_path()), '/').'$';
+        $reg = '';
+        foreach ($routeData as $rd) {
+            if (is_array($rd) && isset($rd[1])) {
+                $reg .= '('.$rd[1].')';
+            } else {
+                $reg .= $rd;
+            }
+        }
+        $reg = '^'.trim($reg, '/').'/?';
+        return $reg;
+    }
+
+    private function extract_params($routeData) {
+        $x = 1;
+        $params = $this->routeParser->params($routeData);
+        $urlParams = '';
+        foreach ($params as $key => $value) {
+            add_rewrite_tag('%'.$this->var_prefix.$key.'%', $value);
+            $urlParams .= '&'.$this->var_prefix.$key.'=$matches['.$x.']';
+            $x++;
+        }
+        return $urlParams;
     }
 }

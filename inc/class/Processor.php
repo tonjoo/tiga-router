@@ -62,11 +62,15 @@ class Processor
      */
     public function call_route_hook()
     {
-        if (!$this->matched_route instanceof Route || !$this->matched_route->has_hook()) {
+        $method = strtolower($_SERVER['REQUEST_METHOD']);
+        if (!$this->matched_route instanceof Route || !$this->matched_route->has_hook($method)) {
             return;
         }
-
-        do_action($this->matched_route->get_hook());
+        if (is_callable($this->matched_route->get_hook($method))) {
+            global $tiga_request;
+            call_user_func_array($this->matched_route->get_hook($method), $tiga_request);
+        }
+        // do_action($this->matched_route->get_hook());
     }
 
     /**
@@ -78,11 +82,12 @@ class Processor
      */
     public function load_route_template($template)
     {
-        if (!$this->matched_route instanceof Route || !$this->matched_route->has_template()) {
+        $method = strtolower($_SERVER['REQUEST_METHOD']);
+        if (!$this->matched_route instanceof Route || !$this->matched_route->has_template($method)) {
             return $template;
         }
 
-        $route_template = get_query_template($this->matched_route->get_template());
+        $route_template = get_query_template($this->matched_route->get_template($method));
 
         if (!empty($route_template)) {
             $template = $route_template;
@@ -98,10 +103,15 @@ class Processor
      */
     public function match_request(WP $environment)
     {
+        $method = strtolower($_SERVER['REQUEST_METHOD']);
         $matched_route = $this->router->match($environment->query_vars);
 
         if ($matched_route instanceof Route) {
-            $this->matched_route = $matched_route;
+            if (in_array($method, $matched_route->get_methods())) {
+                $this->matched_route = $matched_route;
+            } else {
+                wp_die('Route Not Found', 'Route Not Found', array('response' => 404));
+            }
         }
 
         if ($matched_route instanceof \WP_Error && in_array('route_not_found', $matched_route->get_error_codes())) {
