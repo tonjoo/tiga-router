@@ -53,7 +53,7 @@ class Processor
 
         add_action('init', array($self, 'register_routes'));
         add_action('parse_request', array($self, 'match_request'));
-        add_action('template_include', array($self, 'load_route_template'));
+    
         add_action('template_redirect', array($self, 'call_route_hook'));
     }
 
@@ -73,28 +73,6 @@ class Processor
         // do_action($this->matched_route->get_hook());
     }
 
-    /**
-     * Checks to see if a route was found. If there's one, it loads the route template.
-     *
-     * @param string $template
-     *
-     * @return string
-     */
-    public function load_route_template($template)
-    {
-        $method = strtolower($_SERVER['REQUEST_METHOD']);
-        if (!$this->matched_route instanceof Route || !$this->matched_route->has_template($method)) {
-            return $template;
-        }
-
-        $route_template = get_query_template($this->matched_route->get_template($method));
-
-        if (!empty($route_template)) {
-            $template = $route_template;
-        }
-
-        return $template;
-    }
 
     /**
      * Attempts to match the current request to a route.

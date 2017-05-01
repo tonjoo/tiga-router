@@ -28,13 +28,6 @@ class Route {
 	private $methods;
 
 	/**
-	 * The template that the route wants to load.
-	 *
-	 * @var string
-	 */
-	private $template;
-
-	/**
 	 * Constructor.
 	 *
 	 * @param string $path
@@ -42,14 +35,15 @@ class Route {
 	 * @param string $template
 	 */
 	public function __construct($path, $data) {
+		// var_dump($data);
+		// die();
 		$this->path = $path;
-		foreach ($data as $method => $d) {
+
+		foreach ($data as $method => $callback) {
+
 			if (in_array($method, array('get','post','put','delete'))) {
-				if (!empty($d[0])) { //callback
-					$this->hook[$method] = $d[0];
-				}
-				if (!empty($d[1])) { //template
-					$this->template[$method] = $d[1];
+				if ($callback) { //callback
+					$this->hook[$method] = $callback;
 				}
 				$this->methods[] = $method;
 			}
@@ -83,14 +77,6 @@ class Route {
 		return $this->methods;
 	}
 
-	/**
-	 * Get the template that the route wants to load.
-	 *
-	 * @return string
-	 */
-	public function get_template($method = 'get') {
-		return isset($this->template[$method]) ? $this->template[$method] : false;
-	}
 
 	/**
 	 * Checks if this route want to call a hook when matched.
@@ -101,12 +87,4 @@ class Route {
 		return !empty($this->hook[$method]);
 	}
 
-	/**
-	 * Checks if this route want to load a template when matched.
-	 *
-	 * @return bool
-	 */
-	public function has_template($method = 'get') {
-		return !empty($this->template[$method]);
-	}
 }

@@ -1,6 +1,6 @@
 <?php
 
-require WORDPRESS_ROUTER_PATH.'inc/class/RouteParser.php';
+require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/RouteParser.php';
 
 /**
  * The Router manages routes using the WordPress rewrite API.
