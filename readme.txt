@@ -1,4 +1,4 @@
-=== WooCommerce ===
+=== Tiga Router ===
 Contributors: todi.adiyatmo, gamaup
 Tags: router
 Requires at least: 4.4
