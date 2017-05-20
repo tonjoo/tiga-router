@@ -1,5 +1,5 @@
 === Tiga Router ===
-Contributors: todi.adiyatmo
+Contributors: todi.adiyatmo, gamaup
 Tags: router
 Requires at least: 4.4
 Tested up to: 4.7.3

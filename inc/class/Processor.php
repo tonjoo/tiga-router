@@ -67,8 +67,7 @@ class Processor
             return;
         }
         if (is_callable($this->matched_route->get_hook($method))) {
-            global $tiga_request;
-            call_user_func_array($this->matched_route->get_hook($method), $tiga_request);
+            call_user_func($this->matched_route->get_hook($method), new TigaRequest());
         }
         // do_action($this->matched_route->get_hook());
     }
