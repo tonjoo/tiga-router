@@ -1,7 +1,7 @@
 <?php
 /* 
 Plugin Name: Tiga Router - WP Router
-Description: Enable routing in WorDPress
+Description: Enable routing in WordPress
 Author: Tonjoo
 Author URI: http://tonjoostudio.com/
 Plugin URI: http://tonjoostudio.com
@@ -9,7 +9,10 @@ Version: 1.0
 Text Domain: tiga-router
 */
 define( 'TIGA_WORDPRESS_ROUTER_PATH', plugin_dir_path( __FILE__ ) );
+define( 'TIGA_VAR_PREFIX', 'tj_' );
 
+require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Sanitizer.php';
+require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/TigaRequest.php';
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Processor.php';
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Route.php';
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Router.php';
