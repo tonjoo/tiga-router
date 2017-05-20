@@ -1,45 +1,54 @@
-### What is it ??
+# What is it ??
 
 Tiga-Router is a WordPress router, our aim is to simplify building custom WordPress application. 
 
-### Adding Route
+# Guide
 
+## Registering Routes
 ```
-// Hooking up our function to theme setup
-add_action( 'init', 'register_item_post_type' );
-
 function register_theme_routes() {
-
 	TigaRoute::get( '/items/new', 'item_new');
 	TigaRoute::post( '/items/create', 'item_create');
 	TigaRoute::get( '/items/{id:num}', 'item_edit');
 	TigaRoute::post( '/items/{id:num}', 'item_update');
 	TigaRoute::delete( '/items/{id:num}', 'item_delete');
 	TigaRoute::get('/items', 'item_index');
-
 }
-
 add_action( 'tiga_route', 'register_theme_routes');
-
-function item_index() {
-
-	set_tiga_template( 'inc/items/index', $data);
-}
-
-function item_new() {
-
-	$data['items'] = // some data;
-
-	set_tiga_template( 'inc/items/new.php', $data);
+```
+## Controller
+```
+function item_index($request) {
+    $data = $request->all(true);
+	set_tiga_template( 'page-index.php', $data);
 }
 ```
-### Getting Route parameter
 
-```
+## Getting Route Parameter 
 
-```
+### `$request->all( $sanitize )`
 
-### Use Case 
+> $sanitize (boolean) (optional) (default:false) -> set sanitize for inputs
+> return (array) -> get all inputs
+
+### `$request->input( $key, $sanitize )`
+
+> $key (string) (required) -> input name
+> $sanitize (boolean) (optional) (default:false) -> set sanitize for input
+> return (mixed) -> get input value
+
+### `$request->has( $key )`
+
+> $key (string) (required) -> input name
+> return (boolean) -> return true if input key exists
+
+## Page Template
+
+### `set_tiga_template($template_name, $data)`
+> $template_name (string) template name / file name
+> $data (mixed) -> variable that passed to template
+
+## Use Case 
 
 ( Work in progress ) 
 
