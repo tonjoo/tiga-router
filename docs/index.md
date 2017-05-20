@@ -48,7 +48,7 @@ function item_index($request) {
 > $template_name (string) template name / file name
 > $data (mixed) -> variable that passed to template
 
-## Use Case 
+# Use Case 
 
 ( Work in progress ) 
 
