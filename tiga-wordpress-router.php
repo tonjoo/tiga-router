@@ -10,14 +10,17 @@ Text Domain: tiga-router
 */
 define( 'TIGA_WORDPRESS_ROUTER_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TIGA_VAR_PREFIX', 'tj_' );
-
-require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Sanitizer.php';
+// Static Class
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/TigaRequest.php';
+require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/TigaPagination.php';
+// Library
+require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Sanitizer.php';
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Processor.php';
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Route.php';
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Router.php';
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/TigaRoute.php';
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/TigaTemplate.php';
+require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Tiga/Pagination.php';
 
 add_action( 'after_setup_theme', function() {
 	$tiga_route = new TigaRoute();
