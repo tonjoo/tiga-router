@@ -1,10 +1,11 @@
 <?php
+namespace Tiga;
 
 /**
  * Class to handle Request
  */
 
-class TigaRequest {
+class Request {
 
 	/**
 	 * Array holding all request input
@@ -23,7 +24,6 @@ class TigaRequest {
 	 */
 	function __construct() {
 		$this->input = false;
-		$this->sanitizer = new Sanitizer();
 		$this->populateInput();
 	}
 
@@ -45,16 +45,17 @@ class TigaRequest {
 	/**
 	 * Get the variable from request using $key
 	 * @param string 	$key 
-	 * @param bool 		$sanitize 	
+	 * @param mixed 	$default 	
 	 * @return mixed
 	 */
-	public function input($key, $sanitize = false) {
+	public function input($key, $default = false) {
 		if (isset($this->input[$key])) {
-			if ($sanitize) {
-				return $this->sanitizer->sanitize($this->input[$key]);
-			}
 			return $this->input[$key];
 		}
+
+		if($default)
+			return $default;
+
 		return false;
 	}
 
@@ -72,10 +73,7 @@ class TigaRequest {
 	 * @param bool 		$sanitize 	
 	 * @return array
 	 */
-	public function all($sanitize = false) {
-		if ($sanitize) {
-			return $this->sanitizer->sanitizeAll($this->input);
-		}
+	public function all() {
 		return $this->input;
 	}
 

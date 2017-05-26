@@ -33,15 +33,14 @@ function item_index($request) {
 
 Use the `$request` object to access variable in the current request. The `$request` object also provide a function to sanitize the input.
 
-### `$request->all( $sanitize )`
+### `$request->all()`
 
-> $sanitize (boolean) (optional) (default:false) -> set sanitize for inputs
 > return (array) -> get all inputs
 
-### `$request->input( $key, $sanitize )`
+### `$request->input( $key, $default )`
 
 > $key (string) (required) -> input name
-> $sanitize (boolean) (optional) (default:false) -> set sanitize for input
+> $default (boolean) (optional) (default:false) -> set default value for input
 > return (mixed) -> get input value
 
 ### `$request->has( $key )`

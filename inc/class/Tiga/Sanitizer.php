@@ -1,4 +1,5 @@
 <?php
+namespace Tiga;
 
 class Sanitizer {
 
