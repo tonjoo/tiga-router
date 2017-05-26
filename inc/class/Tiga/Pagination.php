@@ -115,9 +115,9 @@ class Pagination {
             //prev
             if ( $i == $this->config['start_page'] && $this->current_page != $this->config['start_page'] ) {
                 // if($this->current_page == 1 )
-                    // $prev_url = str_replace('$paginate','', $this->base_url);
+                    // $prev_url = str_replace('[paginate]','', $this->base_url);
                 // if($i!=$this->current_page)
-                    $prev_url = str_replace('$paginate',$this->current_page-1, $this->base_url);
+                    $prev_url = str_replace('[paginate]',$this->current_page-1, $this->base_url);
                 // else
                     // $prev_url ="#";
                 echo $this->config['prev_tag_open'];
@@ -125,7 +125,7 @@ class Pagination {
                 echo $this->config['prev_tag_close'];
             }
 
-            $url = str_replace('$paginate',$i, $this->base_url);
+            $url = str_replace('[paginate]',$i, $this->base_url);
             //current
             if ($i==$this->current_page) {
                 echo $this->config['cur_tag_open'];
@@ -134,7 +134,7 @@ class Pagination {
             }
             //first
             elseif ($i==$this->config['start_page'] ) {
-                // $url = str_replace('$paginate','', $this->base_url);
+                // $url = str_replace('[paginate]','', $this->base_url);
                 echo $this->config['first_tag_open'];
                 echo "<a href='{$url}' $this->config['link_attribute'] >$page_number </a>";
                 echo $this->config['first_tag_close'];
@@ -155,7 +155,7 @@ class Pagination {
             //next
             if ($i==$iteration) {
                 if($i!=$this->current_page)
-                    $next_url = str_replace('$paginate',$this->current_page+1, $this->base_url);
+                    $next_url = str_replace('[paginate]',$this->current_page+1, $this->base_url);
                 else
                     $next_url="#";
                 echo $this->config['next_tag_open'];
