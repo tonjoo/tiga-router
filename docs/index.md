@@ -68,14 +68,18 @@ $pagination = new \Tiga\Pagination;
 
 // set up pagination parameter
 $config = array()
-$config['rows'] = // Total Row from the database
-$config['per_page'] = 10
-$config['base_url'] = 'http://127.0.0.1/wordpress/[paginate]' 
+// Total Row from the database
+$config['rows'] = $total_row ; 
+$config['current_page'] = $current_page;
+$config['per_page'] = 10;
+// append parameter from url
+$config['appends'] = array('sort_by','q'); 
+$config['base_url'] = 'http://127.0.0.1/wordpress/[paginate]';
 
 $pagination->setup($config);
 
 // render the pagination
-$pagination->render()
+$pagination->render();
 ```
 
 ### Pagination Parameter
@@ -86,6 +90,7 @@ The pagination output can be customized
 $config['rows']   		  = // Total Row from the database
 $config['per_page']       = 10
 $config['base_url']		  = 'http://127.0.0.1/wordpress/[paginate]'
+$config['appends'] 		  = array();
 $config['item_to_show']   = 2;
 $config['skip_item']      = true;
         
