@@ -88,7 +88,8 @@ The pagination output can be customized
 
 ```
 $config['rows']   		  = // Total Row from the database
-$config['per_page']       = 10
+$config['per_page']       = 10;
+$config['per_page']       = 0; // first page
 $config['base_url']		  = 'http://127.0.0.1/wordpress/[paginate]'
 $config['appends'] 		  = array();
 $config['item_to_show']   = 2;
