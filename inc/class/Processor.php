@@ -111,9 +111,9 @@ class Processor
 
         $routes_hash = md5(serialize($routes));
 
-        if ($routes_hash != get_option('my_plugin_routes_hash')) {
+        if ($routes_hash != get_option('tiga_route_hash')) {
             flush_rewrite_rules();
-            update_option('my_plugin_routes_hash', $routes_hash);
+            update_option('tiga_route_hash', $routes_hash);
         }
     }
 }

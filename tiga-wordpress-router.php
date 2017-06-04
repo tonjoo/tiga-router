@@ -22,21 +22,21 @@ require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/TigaTemplate.php';
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Tiga/Sanitizer.php';
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Tiga/Request.php';
 require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Tiga/Pagination.php';
+require TIGA_WORDPRESS_ROUTER_PATH.'inc/class/Tiga/Session.php';
 
-//Extra Library
 // let users change the session cookie name
 if( ! defined( 'WP_SESSION_COOKIE' ) ) {
-	define( 'WP_SESSION_COOKIE', '_wp_session' );
+    define( 'WP_SESSION_COOKIE', '_wp_session' );
 }
 if ( ! class_exists( 'Recursive_ArrayAccess' ) ) {
-	require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-recursive-arrayaccess.php';
+    require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-recursive-arrayaccess.php';
 }
 if ( ! class_exists( 'WP_Session' ) ) {
-	require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session.php';
-	require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/wp-session.php';
+    require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session.php';
+    require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/wp-session.php';
 }
 if ( ! class_exists( 'WP_Session_Utils' ) ) {
-	require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session-utils.php';
+    require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session-utils.php';
 }
 
 add_action( 'after_setup_theme', function() {
@@ -53,9 +53,17 @@ add_action( 'after_setup_theme', function() {
 	Processor::init($router, $routes);
 });
 
-function set_tiga_template( $template, $data) {
+function set_tiga_template( $template, $data ) {
+	tiga_set_template($template, $data);
+}
+
+function tiga_set_template( $template, $data ) {
 	TigaTemplate::init( $template, $data);
 }
 
+function tiga_dd( $object ) {
 
-
+	echo "<pre>";
+	var_dump($object);
+	echo "</pre>";
+}
