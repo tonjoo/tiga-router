@@ -82,25 +82,6 @@ $pagination->setup($config);
 $pagination->render();
 ```
 
-## Session
-
-Session wrapper class is on `Tiga\Session`, based on `WP Session Manager` plugin.
-
-```
-$session = new \Tiga\Session;
-
-$sesion->set('key',$value);
-$sesion->get('key');
-$sesion->has('key');
-$sesion->pull('key',$value);
-$sesion->keys();
-$sesion->clear();
-```
-
-### `$session->set($key, $value)`
-
-> return (array) -> get all inputs
-
 ### Pagination Parameter
 
 The pagination output can be customized
@@ -142,7 +123,24 @@ $config['start_page']     = 0;
         
 ```
 
+## Session
 
+Session wrapper class is on `Tiga\Session`, based on `WP Session Manager` plugin.
+
+```
+$session = new \Tiga\Session;
+
+$sesion->set('key',$value);
+$sesion->get('key');
+$sesion->has('key');
+$sesion->pull('key',$value);
+$sesion->keys();
+$sesion->clear();
+```
+
+### `$session->set($key, $value)`
+
+> return (array) -> get all inputs
 
 # Use Case 
 
