@@ -34,7 +34,8 @@ class Request {
 		global $wp_query;
 		$get    = $_GET;
 		$post   = $_POST;
-		$this->input = array_merge($get,$post);
+		$file	= $_FILES;
+		$this->input = array_merge($get,$post,$file);
 		foreach ($wp_query->query_vars as $key => $value) {
 			if (strpos($key,TIGA_VAR_PREFIX) === 0) {
 				$this->input[str_replace(TIGA_VAR_PREFIX, '', $key)] = $value;
@@ -65,7 +66,13 @@ class Request {
 	 * @return boolean
 	 */
 	public function has($key) {
-		return array_key_exists($key, $this->input);
+		$keys = explode('|', $key);
+		foreach ($keys as $k) {
+			if (!array_key_exists($k, $this->input) || empty($this->input[$k])) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
