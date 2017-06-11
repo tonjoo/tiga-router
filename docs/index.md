@@ -43,9 +43,19 @@ Use the `$request` object to access variable in the current request. The `$reque
 > $default (boolean) (optional) (default:false) -> set default value for input
 > return (mixed) -> get input value
 
+### `$request->file( $key )`
+
+> $key (string) (required) -> file name
+> return (boolean) -> return true if input key exists
+
 ### `$request->has( $key )`
 
 > $key (string) (required) -> input name
+> return (boolean) -> return true if input key exists
+
+### `$request->hasFie( $key )`
+
+> $key (string) (required) -> file name
 > return (boolean) -> return true if input key exists
 
 # Helper Class and Function
