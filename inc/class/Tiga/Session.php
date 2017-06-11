@@ -28,6 +28,7 @@ class Session
     {
 
         $this->prefix = 'tiga_';
+        $this->session = \wp_session::get_instance();
         return $this;
     }
 
@@ -108,7 +109,7 @@ class Session
      */
     public function has($key)
     {
-        return array_key_exists($this->prefix.$key, $this->session);
+        return !is_null($this->session[$this->prefix.$key]);
     }
 
     /**

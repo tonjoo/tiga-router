@@ -14,6 +14,12 @@ class Request {
 	private $input;
 
 	/**
+	 * Array holding all request files
+	 * @var array 
+	 */
+	private $file;
+
+	/**
 	 * Sanitizer
 	 * @var array 
 	 */
@@ -24,6 +30,7 @@ class Request {
 	 */
 	function __construct() {
 		$this->input = false;
+		$this->file = false;
 		$this->populateInput();
 	}
 
@@ -34,12 +41,14 @@ class Request {
 		global $wp_query;
 		$get    = $_GET;
 		$post   = $_POST;
+		$file	= $_FILES;
 		$this->input = array_merge($get,$post);
 		foreach ($wp_query->query_vars as $key => $value) {
 			if (strpos($key,TIGA_VAR_PREFIX) === 0) {
 				$this->input[str_replace(TIGA_VAR_PREFIX, '', $key)] = $value;
 			}
 		}
+		$this->file = $_FILES;
 	}
 
 	/**
@@ -60,12 +69,47 @@ class Request {
 	}
 
 	/**
+	 * Get file from request using $key
+	 * @param string 	$key 
+	 * @param mixed 	$default 	
+	 * @return mixed
+	 */
+	public function file($key) {
+		if (isset($this->file[$key])) {
+			return $this->file[$key];
+		}
+
+		return false;
+	}
+
+	/**
 	 * Check if the request has $key
 	 * @param string $key 
 	 * @return boolean
 	 */
 	public function has($key) {
-		return array_key_exists($key, $this->input);
+		$keys = explode('|', $key);
+		foreach ($keys as $k) {
+			if (!array_key_exists($k, $this->input) || empty($this->input[$k])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Check if the request has file with $key
+	 * @param string $key 
+	 * @return boolean
+	 */
+	public function hasFile($key) {
+		$keys = explode('|', $key);
+		foreach ($keys as $k) {
+			if (!array_key_exists($k, $this->file) || empty($this->file[$k])) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -75,6 +119,15 @@ class Request {
 	 */
 	public function all() {
 		return $this->input;
+	}
+
+	/**
+	 * Get all files from request
+	 * @param bool 		$sanitize 	
+	 * @return array
+	 */
+	public function allFiles() {
+		return $this->file;
 	}
 
 }

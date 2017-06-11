@@ -67,6 +67,10 @@ class Processor
             return;
         }
         if (is_callable($this->matched_route->get_hook($method))) {
+            add_filter( 'body_class', function( $classes ) {
+                array_push($classes, 'tiga-router');
+                return $classes;
+            });
             call_user_func($this->matched_route->get_hook($method), new Tiga\Request());
         }
         // do_action($this->matched_route->get_hook());
