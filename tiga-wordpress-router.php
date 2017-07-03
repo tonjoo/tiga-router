@@ -61,8 +61,15 @@ function tiga_set_template( $template, $data ) {
 	TigaTemplate::init( $template, $data);
 }
 
-function tiga_dd( $object ) {
+if (!function_exists('is_route')) {
+	function is_route($route = '') {
+		global $current_route;
+		if ($route == $current_route) return true;
+		return false;
+	}
+}
 
+function tiga_dd( $object ) {
 	echo "<pre>";
 	var_dump($object);
 	echo "</pre>";
