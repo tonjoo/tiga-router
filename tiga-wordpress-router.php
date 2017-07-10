@@ -31,13 +31,7 @@ if( ! defined( 'WP_SESSION_COOKIE' ) ) {
 if ( ! class_exists( 'Recursive_ArrayAccess' ) ) {
     require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-recursive-arrayaccess.php';
 }
-if ( ! class_exists( 'WP_Session' ) ) {
-    require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session.php';
-    require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/wp-session.php';
-}
-if ( ! class_exists( 'WP_Session_Utils' ) ) {
-    require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session-utils.php';
-}
+
 
 add_action( 'after_setup_theme', function() {
 	$tiga_route = new TigaRoute();

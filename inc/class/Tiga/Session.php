@@ -26,7 +26,13 @@ class Session
      */
     public function __construct()
     {
-
+        if ( ! class_exists( 'WP_Session' ) ) {
+            require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session.php';
+            require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/wp-session.php';
+        }
+        if ( ! class_exists( 'WP_Session_Utils' ) ) {
+            require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session-utils.php';
+        }
         $this->prefix = 'tiga_';
         $this->session = \wp_session::get_instance();
         return $this;

@@ -35,18 +35,28 @@ Use the `$request` object to access variable in the current request. The `$reque
 
 ### `$request->all()`
 
-> return (array) -> get all inputs
+- return (array) -> get all inputs
 
 ### `$request->input( $key, $default )`
 
-> $key (string) (required) -> input name
-> $default (boolean) (optional) (default:false) -> set default value for input
-> return (mixed) -> get input value
+- $key (string) (required) -> input name
+- $default (boolean) (optional) (default:false) -> set default value for input
+- return (mixed) -> get input value
+
+### `$request->file( $key )`
+
+- $key (string) (required) -> file name
+- return (boolean) -> return true if input key exists
 
 ### `$request->has( $key )`
 
-> $key (string) (required) -> input name
-> return (boolean) -> return true if input key exists
+- $key (string) (required) -> input name
+- return (boolean) -> return true if input key exists
+
+### `$request->hasFie( $key )`
+
+- $key (string) (required) -> file name
+- return (boolean) -> return true if input key exists
 
 # Helper Class and Function
 
@@ -55,8 +65,8 @@ Use the `$request` object to access variable in the current request. The `$reque
 You can call a page template (theme page template) on a `Controller` using the `set_tiga_template` function.
 
 ### `set_tiga_template($template_name, $data)`
-> $template_name (string) template name / file name
-> $data (mixed) -> variable that passed to template
+- $template_name (string) template name / file name
+- $data (mixed) -> variable that passed to template
 
 
 ## Pagination 
@@ -140,7 +150,7 @@ $sesion->clear();
 
 ### `$session->set($key, $value)`
 
-> return (array) -> get all inputs
+- return (array) -> get all inputs
 
 # Use Case 
 
