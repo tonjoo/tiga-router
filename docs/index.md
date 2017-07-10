@@ -152,6 +152,11 @@ $sesion->clear();
 
 - return (array) -> get all inputs
 
+How to use `$_SESSION` instead of `WP Session` on wrapper class:
+```
+define( 'TIGA_SESSION', '$_SESSION' );
+```
+
 # Use Case 
 
 ( Work in progress ) 
