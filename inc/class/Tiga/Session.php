@@ -26,15 +26,31 @@ class Session
      */
     public function __construct()
     {
-        if ( ! class_exists( 'WP_Session' ) ) {
-            require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session.php';
-            require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/wp-session.php';
-        }
-        if ( ! class_exists( 'WP_Session_Utils' ) ) {
-            require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session-utils.php';
-        }
         $this->prefix = 'tiga_';
-        $this->session = \wp_session::get_instance();
+        /* if using $_SESSION as session bag */
+        if ( defined( "TIGA_SESSION" ) && TIGA_SESSION == '$_SESSION' ) {
+
+            if ( ( version_compare(PHP_VERSION, '5.4.0', '>=') && session_status() == PHP_SESSION_NONE ) || ( session_id() == '' ) ) {
+                session_start();
+            }
+            $this->session = $_SESSION;
+
+        } else {
+
+            if ( ! class_exists( 'WP_Session' ) ) {
+                require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session.php';
+                require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/wp-session.php';
+            }
+            if ( ! class_exists( 'WP_Session_Utils' ) ) {
+                require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session-utils.php';
+            }
+            $this->session = \wp_session::get_instance();
+
+            add_action( 'do_delete_sessions', array( $this, 'delete_old_sessions' ) );
+            $this->register_cron();
+            
+        }
+
         return $this;
     }
 
@@ -115,7 +131,7 @@ class Session
      */
     public function has($key)
     {
-        return !is_null($this->session[$this->prefix.$key]);
+        return isset($this->session[$this->prefix.$key]) && !is_null($this->session[$this->prefix.$key]);
     }
 
     /**
@@ -144,5 +160,25 @@ class Session
             unset($this->session[$key]);
         }
 
+    }
+
+    /**
+     * Register delete old sessions scheduler
+     *
+     * @return mixed
+     */
+    private function register_cron() {
+        if (!wp_next_scheduled ( 'do_delete_sessions' )) {
+            wp_schedule_event(time(), 'hourly', 'do_delete_sessions');
+        }
+    }
+
+    /**
+     * Delete all old sessions on database
+     *
+     * @return mixed
+     */
+    public function delete_old_sessions() {
+        WP_Session_Utils::delete_old_sessions();
     }
 }
