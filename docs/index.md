@@ -17,6 +17,7 @@ function register_theme_routes() {
 }
 add_action( 'tiga_route', 'register_theme_routes');
 ```
+Available pattern: `:num`, `:num?`, `:any`, `:any?`, `:all`, `:all?`
 ## Controller
 
 The registered route will run a function callback.  
