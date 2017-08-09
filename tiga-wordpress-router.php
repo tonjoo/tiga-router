@@ -2,7 +2,7 @@
 /* 
 Plugin Name: Tiga Router - WP Router
 Description: Enable routing in WordPress
-Author: Tonjoo
+Author: todiadiyatmo
 Author URI: http://tonjoostudio.com/
 Plugin URI: http://tonjoostudio.com
 Version: 1.0

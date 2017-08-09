@@ -1,3 +1,3 @@
 # Tiga Router
 
-WordPress router, more information on this page https://tonjoo.github.io/tiga-router/
+WordPress router, more information please visit this page https://tonjoo.github.io/tiga-router/

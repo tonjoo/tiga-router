@@ -1,15 +1,16 @@
 === Tiga Router ===
 Contributors: todi.adiyatmo, gamaup
+Description: Tiga is a WordPress router, simplify building custom WordPress application. 
 Tags: router
 Requires at least: 4.4
-Tested up to: 4.7.3
-Stable tag: 1
-License: MIT
+Tested up to: 4.8.0
+Version: 1.0
+License: LGPL
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Tiga is a WordPress router, simplify building custom WordPress application 
+WordPress router, more information please visit this page https://tonjoo.github.io/tiga-router/
 
-== Description ==
+== Sample Usage ==
 
 ```
 // Hooking up our function to theme setup
