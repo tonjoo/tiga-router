@@ -5,180 +5,174 @@ namespace Tiga;
 /**
  * Handle session.
  */
-class Session
-{
-    /**
-     * @var session
-     */
-    private $prefix;
+class Session {
 
-    /**
-     * @var session using $wp_session
-     */
-    private $session;
+	/**
+	 * @var session
+	 */
+	private $prefix;
 
-    /**
-     * Class constructor.
-     *
-     * @param Session $session
-     *
-     * @return Session
-     */
-    public function __construct()
-    {
-        $this->prefix = 'tiga_';
-        /* if using $_SESSION as session bag */
-        if ( defined( "TIGA_SESSION" ) && TIGA_SESSION == '$_SESSION' ) {
+	/**
+	 * @var session using $wp_session
+	 */
+	private $session;
 
-            if ( ( version_compare(PHP_VERSION, '5.4.0', '>=') && session_status() == PHP_SESSION_NONE ) || ( session_id() == '' ) ) {
-                session_start();
-            }
-            $this->session = $_SESSION;
+	/**
+	 * Class constructor.
+	 *
+	 * @param Session $session
+	 *
+	 * @return Session
+	 */
+	public function __construct() {
+		$this->prefix = 'tiga_';
+		/* if using $_SESSION as session bag */
+		if ( defined( 'TIGA_SESSION' ) && TIGA_SESSION == '$_SESSION' ) {
 
-        } else {
+			if ( ( version_compare( PHP_VERSION, '5.4.0', '>=' ) && session_status() == PHP_SESSION_NONE ) || ( session_id() == '' ) ) {
+				session_start();
+			}
+			$this->session = $_SESSION;
 
-            if ( ! class_exists( 'WP_Session' ) ) {
-                require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session.php';
-                require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/wp-session.php';
-            }
-            if ( ! class_exists( 'WP_Session_Utils' ) ) {
-                require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session-utils.php';
-            }
-            $this->session = \wp_session::get_instance();
+		} else {
 
-            add_action( 'do_delete_sessions', array( $this, 'delete_old_sessions' ) );
-            $this->register_cron();
-            
-        }
+			if ( ! class_exists( 'WP_Session' ) ) {
+				require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session.php';
+				require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/wp-session.php';
+			}
+			if ( ! class_exists( 'WP_Session_Utils' ) ) {
+				require_once TIGA_WORDPRESS_ROUTER_PATH . 'inc/lib/class-wp-session-utils.php';
+			}
+			$this->session = \wp_session::get_instance();
 
-        return $this;
-    }
+			add_action( 'do_delete_sessions', array( $this, 'delete_old_sessions' ) );
+			$this->register_cron();
 
-    /**
-     * Set session object to according to key.
-     *
-     * @param string $key
-     * @param mixed  $value
-     */
-    public function set($key, $value)
-    {
-        $this->session[$this->prefix.$key] = $value;
-    }
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Set session object to according to key.
+	 *
+	 * @param string $key
+	 * @param mixed  $value
+	 */
+	public function set( $key, $value ) {
+		$this->session[ $this->prefix . $key ] = $value;
+	}
 
 
-    /**
-     * Get object from session bag.
-     *
-     * @param string $key
-     * @param mixed  $defaultValue
-     *
-     * @return mixed
-     */
-    public function get($key, $defaultValue = false)
-    {
-        if ($this->has($key)) {
-            return $this->session[$this->prefix.$key];
-        }
+	/**
+	 * Get object from session bag.
+	 *
+	 * @param string $key
+	 * @param mixed  $defaultValue
+	 *
+	 * @return mixed
+	 */
+	public function get( $key, $defaultValue = false ) {
+		if ( $this->has( $key ) ) {
+			return $this->session[ $this->prefix . $key ];
+		}
 
-        return $defaultValue;
-    }
+		return $defaultValue;
+	}
 
-    /**
-     * Get object from session bag and delete
-     *
-     * @param string $key
-     * @param mixed  $defaultValue
-     *
-     * @return mixed
-     */
-    public function pull($key, $defaultValue = false)
-    {
-        if ($this->has($key)) {
-            $return = $this->session[$this->prefix.$key];
+	/**
+	 * Get object from session bag and delete
+	 *
+	 * @param string $key
+	 * @param mixed  $defaultValue
+	 *
+	 * @return mixed
+	 */
+	public function pull( $key, $defaultValue = false ) {
+		if ( $this->has( $key ) ) {
+			$return = $this->session[ $this->prefix . $key ];
 
-            unset($this->session[$this->prefix.$key]);
+			unset( $this->session[ $this->prefix . $key ] );
 
-            return $return;
-        }
+			return $return;
+		}
 
-        return $defaultValue;
-    }
+		return $defaultValue;
+	}
 
-    /**
-     * Get all session bag content.
-     *
-     * @return array
-     */
-    public function all()
-    {
+	/**
+	 * Get all session bag content.
+	 *
+	 * @return array
+	 */
+	public function all() {
 
-        $return = array();
-        
-        foreach( $this->keys() as $key ) {
-            $return[] = $this->session[$key];
-        };
+		$return = array();
 
-        return $return;
-        
-    }
+		foreach ( $this->keys() as $key ) {
+			$return[] = $this->session[ $key ];
+		};
 
-    /**
-     * Check if session bag has $key.
-     *
-     * @param string $key
-     *
-     * @return bool
-     */
-    public function has($key)
-    {
-        return isset($this->session[$this->prefix.$key]) && !is_null($this->session[$this->prefix.$key]);
-    }
+		return $return;
 
-    /**
-     * Return all list of defined keys.
-     */
-    public function keys()
-    {
-        $return = array();
+	}
 
-        foreach ( array_keys($this->session) as $key ) {
-            if (strpos($key, $this->prefix) !== false) 
-                $return[] = $key;
-        }
+	/**
+	 * Check if session bag has $key.
+	 *
+	 * @param string $key
+	 *
+	 * @return bool
+	 */
+	public function has( $key ) {
+		return isset( $this->session[ $this->prefix . $key ] ) && ! is_null( $this->session[ $this->prefix . $key ] );
+	}
 
-        return $return;
-    }
+	/**
+	 * Return all list of defined keys.
+	 */
+	public function keys() {
+		$return = array();
 
-    /**
-     * Clear the session bag.
-     *
-     * @return mixed
-     */
-    public function clear() {
+		foreach ( array_keys( $this->session ) as $key ) {
+			if ( strpos( $key, $this->prefix ) !== false ) {
+				$return[] = $key;
+			}
+		}
 
-        foreach( $this->keys() as $key ) {
-            unset($this->session[$key]);
-        }
+		return $return;
+	}
 
-    }
+	/**
+	 * Clear the session bag.
+	 *
+	 * @return mixed
+	 */
+	public function clear() {
 
-    /**
-     * Register delete old sessions scheduler
-     *
-     * @return mixed
-     */
-    private function register_cron() {
-        if (!wp_next_scheduled ( 'do_delete_sessions' )) {
-            wp_schedule_event(time(), 'hourly', 'do_delete_sessions');
-        }
-    }
+		foreach ( $this->keys() as $key ) {
+			unset( $this->session[ $key ] );
+		}
 
-    /**
-     * Delete all old sessions on database
-     *
-     * @return mixed
-     */
-    public function delete_old_sessions() {
-        WP_Session_Utils::delete_old_sessions();
-    }
+	}
+
+	/**
+	 * Register delete old sessions scheduler
+	 *
+	 * @return mixed
+	 */
+	private function register_cron() {
+		if ( ! wp_next_scheduled( 'do_delete_sessions' ) ) {
+			wp_schedule_event( time(), 'hourly', 'do_delete_sessions' );
+		}
+	}
+
+	/**
+	 * Delete all old sessions on database
+	 *
+	 * @return mixed
+	 */
+	public function delete_old_sessions() {
+		WP_Session_Utils::delete_old_sessions();
+	}
 }

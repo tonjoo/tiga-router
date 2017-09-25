@@ -34,16 +34,16 @@ class Route {
 	 * @param string $hook
 	 * @param string $template
 	 */
-	public function __construct($path, $data) {
+	public function __construct( $path, $data ) {
 		// var_dump($data);
 		// die();
 		$this->path = $path;
 
-		foreach ($data as $method => $callback) {
+		foreach ( $data as $method => $callback ) {
 
-			if (in_array($method, array('get','post','put','delete'))) {
-				if ($callback) { //callback
-					$this->hook[$method] = $callback;
+			if ( in_array( $method, array( 'get', 'post', 'put', 'delete' ) ) ) {
+				if ( $callback ) { // callback
+					$this->hook[ $method ] = $callback;
 				}
 				$this->methods[] = $method;
 			}
@@ -55,8 +55,8 @@ class Route {
 	 *
 	 * @return string
 	 */
-	public function get_hook($method = 'get') {
-		return isset($this->hook[$method]) ? $this->hook[$method] : false;
+	public function get_hook( $method = 'get' ) {
+		return isset( $this->hook[ $method ] ) ? $this->hook[ $method ] : false;
 	}
 
 	/**
@@ -83,8 +83,8 @@ class Route {
 	 *
 	 * @return bool
 	 */
-	public function has_hook($method = 'get') {
-		return !empty($this->hook[$method]);
+	public function has_hook( $method = 'get' ) {
+		return ! empty( $this->hook[ $method ] );
 	}
 
 }

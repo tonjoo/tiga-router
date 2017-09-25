@@ -69,13 +69,13 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * @uses apply_filters Calls `wp_session_expiration` to determine how long until sessions expire.
 	 */
 	protected function __construct() {
-		if ( isset( $_COOKIE[WP_SESSION_COOKIE] ) ) {
-			$cookie = stripslashes( $_COOKIE[WP_SESSION_COOKIE] );
+		if ( isset( $_COOKIE[ WP_SESSION_COOKIE ] ) ) {
+			$cookie = stripslashes( $_COOKIE[ WP_SESSION_COOKIE ] );
 			$cookie_crumbs = explode( '||', $cookie );
 
-            $this->session_id = preg_replace("/[^A-Za-z0-9_]/", '', $cookie_crumbs[0] );
-            $this->expires = absint( $cookie_crumbs[1] );
-            $this->exp_variant = absint( $cookie_crumbs[2] );
+			$this->session_id = preg_replace( '/[^A-Za-z0-9_]/', '', $cookie_crumbs[0] );
+			$this->expires = absint( $cookie_crumbs[1] );
+			$this->exp_variant = absint( $cookie_crumbs[2] );
 
 			// Update the session expiration if we're past the variant time
 			if ( time() > $this->exp_variant ) {
@@ -118,13 +118,14 @@ final class WP_Session extends Recursive_ArrayAccess {
 	}
 
 	/**
-	* Set the session cookie
-     	* @uses apply_filters Calls `wp_session_cookie_secure` to set the $secure parameter of setcookie()
-     	* @uses apply_filters Calls `wp_session_cookie_httponly` to set the $httponly parameter of setcookie()
-     	*/
+	 * Set the session cookie
+	 *
+	 * @uses apply_filters Calls `wp_session_cookie_secure` to set the $secure parameter of setcookie()
+	 * @uses apply_filters Calls `wp_session_cookie_httponly` to set the $httponly parameter of setcookie()
+	 */
 	protected function set_cookie() {
-        	$secure = apply_filters('wp_session_cookie_secure', false);
-        	$httponly = apply_filters('wp_session_cookie_httponly', false);
+			$secure = apply_filters( 'wp_session_cookie_secure', false );
+			$httponly = apply_filters( 'wp_session_cookie_httponly', false );
 		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
 	}
 
@@ -146,7 +147,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 */
 	public function write_data() {
 		$option_key = "_wp_session_{$this->session_id}";
-		
+
 		if ( false === get_option( $option_key ) ) {
 			add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
 			add_option( "_wp_session_expires_{$this->session_id}", $this->expires, '', 'no' );
@@ -204,7 +205,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * @return bool
 	 */
 	public function session_started() {
-		return !!self::$instance;
+		return ! ! self::$instance;
 	}
 
 	/**
