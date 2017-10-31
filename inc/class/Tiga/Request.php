@@ -1,10 +1,15 @@
 <?php
+/**
+ * Request class
+ *
+ * @package Tiga Router
+ */
+
 namespace Tiga;
 
 /**
  * Class to handle Request
  */
-
 class Request {
 
 	/**
@@ -31,34 +36,34 @@ class Request {
 	/**
 	 * Constructor
 	 */
-	function __construct() {
+	public function __construct() {
 		$this->input = false;
 		$this->file = false;
-		$this->populateInput();
+		$this->populate_input();
 	}
 
 	/**
 	 * Populate $input variable
 	 */
-	private function populateInput() {
+	private function populate_input() {
 		global $wp_query;
-		$get    = $_GET;
-		$post   = $_POST;
-		$file   = $_FILES;
+		$get    = $_GET; // Input var okay.
+		$post   = $_POST; // Input var okay.
+		$file   = $_FILES; // Input var okay.
 		$this->input = array_merge( $get,$post );
 		foreach ( $wp_query->query_vars as $key => $value ) {
 			if ( strpos( $key,TIGA_VAR_PREFIX ) === 0 ) {
 				$this->input[ str_replace( TIGA_VAR_PREFIX, '', $key ) ] = $value;
 			}
 		}
-		$this->file = $_FILES;
+		$this->file = $file;
 	}
 
 	/**
 	 * Get the variable from request using $key
 	 *
-	 * @param string $key
-	 * @param mixed  $default
+	 * @param string $key     Input key.
+	 * @param mixed  $default Default value.
 	 * @return mixed
 	 */
 	public function input( $key, $default = false ) {
@@ -67,7 +72,7 @@ class Request {
 				return $this->input[ $key ];
 			}
 		} else {
-			if ( $matches[0] == $key && isset( $matches[1] ) && isset( $matches[2] ) ) {
+			if ( $matches[0] === $key && isset( $matches[1] ) && isset( $matches[2] ) ) {
 				if ( isset( $this->input[ $matches[1] ][ $matches[2] ] ) ) {
 					return $this->input[ $matches[1] ][ $matches[2] ];
 				}
@@ -84,17 +89,22 @@ class Request {
 	/**
 	 * Get file from request using $key
 	 *
-	 * @param string $key
-	 * @param mixed  $default
+	 * @param string $key Input key.
+	 * @param string $get Data context.
 	 * @return mixed
 	 */
 	public function file( $key, $get = '' ) {
 		if ( $this->hasFile( $key ) ) {
-			if ( isset( $this->file[ $key ][ $get ] ) ) { // name, type, tmp_name, error, size
+			if ( isset( $this->file[ $key ][ $get ] ) ) { // name, type, tmp_name, error, size.
 				return $this->file[ $key ][ $get ];
 			} else {
-				if ( $get == 'base64' ) {
-					$data = file_get_contents( $this->file[ $key ]['tmp_name'] );
+				if ( 'base64' === $get ) {
+					global $wp_filesystem;
+					if ( empty( $wp_filesystem ) ) {
+						require_once  ABSPATH . '/wp-admin/includes/file.php' ;
+						WP_Filesystem();
+					}
+					$data = $wp_filesystem->get_contents( $this->file[ $key ]['tmp_name'] );
 					return 'data:' . $this->file[ $key ]['type'] . ';base64,' . base64_encode( $data );
 				}
 			}
@@ -106,7 +116,7 @@ class Request {
 	/**
 	 * Check if the request has $key
 	 *
-	 * @param string $key
+	 * @param string $key $key Input key.
 	 * @return boolean
 	 */
 	public function has( $key ) {
@@ -117,7 +127,7 @@ class Request {
 					return false;
 				}
 			} else {
-				if ( $matches[0] == $k && isset( $matches[1] ) && isset( $matches[2] ) ) {
+				if ( $matches[0] === $k && isset( $matches[1] ) && isset( $matches[2] ) ) {
 					if ( ! array_key_exists( $matches[1], $this->input ) || empty( $this->input[ $matches[1] ] ) ) {
 						return false;
 					} else {
@@ -136,13 +146,13 @@ class Request {
 	/**
 	 * Check if the request has file with $key
 	 *
-	 * @param string $key
+	 * @param string $key $key Input key.
 	 * @return boolean
 	 */
 	public function hasFile( $key ) {
 		$keys = explode( '|', $key );
 		foreach ( $keys as $k ) {
-			if ( ! array_key_exists( $k, $this->file ) || empty( $this->file[ $k ] ) || $this->file[ $k ]['size'] == 0 ) {
+			if ( ! array_key_exists( $k, $this->file ) || empty( $this->file[ $k ] ) || 0 === $this->file[ $k ]['size'] ) {
 				return false;
 			}
 		}
@@ -152,7 +162,6 @@ class Request {
 	/**
 	 * Get all variable from request
 	 *
-	 * @param bool $sanitize
 	 * @return array
 	 */
 	public function all() {
@@ -162,7 +171,6 @@ class Request {
 	/**
 	 * Get all files from request
 	 *
-	 * @param bool $sanitize
 	 * @return array
 	 */
 	public function allFiles() {

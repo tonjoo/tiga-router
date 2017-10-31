@@ -32,8 +32,8 @@ class Processor {
 	/**
 	 * Constructor.
 	 *
-	 * @param Router  $router
-	 * @param Route[] $routes
+	 * @param Router $router Router object.
+	 * @param array  $routes Routes.
 	 */
 	public function __construct( Router $router, array $routes = array() ) {
 		$this->router = $router;
@@ -43,8 +43,8 @@ class Processor {
 	/**
 	 * Initialize processor with WordPress.
 	 *
-	 * @param Router  $router
-	 * @param Route[] $routes
+	 * @param Router $router Router object.
+	 * @param array  $routes Routes.
 	 */
 	public static function init( Router $router, array $routes = array() ) {
 		$self = new self( $router, $routes );
@@ -72,21 +72,20 @@ class Processor {
 			);
 			call_user_func( $this->matched_route->get_hook( $method ), new Tiga\Request() );
 		}
-		// do_action($this->matched_route->get_hook());
 	}
 
 
 	/**
 	 * Attempts to match the current request to a route.
 	 *
-	 * @param WP $environment
+	 * @param WP $environment WordPress environment object.
 	 */
 	public function match_request( WP $environment ) {
 		$method = strtolower( $_SERVER['REQUEST_METHOD'] );
 		$matched_route = $this->router->match( $environment->query_vars );
 
 		if ( $matched_route instanceof Route ) {
-			if ( in_array( $method, $matched_route->get_methods() ) ) {
+			if ( in_array( $method, $matched_route->get_methods(), true ) ) {
 				global $current_route;
 				$current_route = $matched_route->get_path();
 				$this->matched_route = $matched_route;
@@ -99,9 +98,9 @@ class Processor {
 			}
 		}
 
-		if ( $matched_route instanceof \WP_Error && in_array( 'route_not_found', $matched_route->get_error_codes() ) ) {
+		if ( $matched_route instanceof \WP_Error && in_array( 'route_not_found', $matched_route->get_error_codes(), true ) ) {
 			wp_die(
-				$matched_route, 'Route Not Found', array(
+				esc_html( $matched_route ), 'Route Not Found', array(
 					'response' => 404,
 				)
 			);

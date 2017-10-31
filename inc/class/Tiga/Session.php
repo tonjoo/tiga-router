@@ -1,4 +1,9 @@
 <?php
+/**
+ * Session class
+ *
+ * @package Tiga Router
+ */
 
 namespace Tiga;
 
@@ -8,11 +13,15 @@ namespace Tiga;
 class Session {
 
 	/**
+	 * Query vars prefix.
+	 *
 	 * @var session
 	 */
 	private $prefix;
 
 	/**
+	 * Session bag.
+	 *
 	 * @var session using $wp_session
 	 */
 	private $session;
@@ -20,16 +29,14 @@ class Session {
 	/**
 	 * Class constructor.
 	 *
-	 * @param Session $session
-	 *
 	 * @return Session
 	 */
 	public function __construct() {
 		$this->prefix = 'tiga_';
 		/* if using $_SESSION as session bag */
-		if ( defined( 'TIGA_SESSION' ) && TIGA_SESSION == '$_SESSION' ) {
+		if ( defined( 'TIGA_SESSION' ) && '$_SESSION' === TIGA_SESSION ) {
 
-			if ( ( version_compare( PHP_VERSION, '5.4.0', '>=' ) && session_status() == PHP_SESSION_NONE ) || ( session_id() == '' ) ) {
+			if ( ( version_compare( PHP_VERSION, '5.4.0', '>=' ) && session_status() === PHP_SESSION_NONE ) || ( '' === session_id() ) ) {
 				session_start();
 			}
 			$this->session = $_SESSION;
@@ -56,8 +63,8 @@ class Session {
 	/**
 	 * Set session object to according to key.
 	 *
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param string $key     Session key.
+	 * @param mixed  $value   Sesion value.
 	 */
 	public function set( $key, $value ) {
 		$this->session[ $this->prefix . $key ] = $value;
@@ -67,28 +74,26 @@ class Session {
 	/**
 	 * Get object from session bag.
 	 *
-	 * @param string $key
-	 * @param mixed  $defaultValue
-	 *
+	 * @param string $key           Session key.
+	 * @param mixed  $default_value Session default value.
 	 * @return mixed
 	 */
-	public function get( $key, $defaultValue = false ) {
+	public function get( $key, $default_value = false ) {
 		if ( $this->has( $key ) ) {
 			return $this->session[ $this->prefix . $key ];
 		}
 
-		return $defaultValue;
+		return $default_value;
 	}
 
 	/**
 	 * Get object from session bag and delete
 	 *
-	 * @param string $key
-	 * @param mixed  $defaultValue
-	 *
+	 * @param string $key           Session key.
+	 * @param mixed  $default_value Session default value.
 	 * @return mixed
 	 */
-	public function pull( $key, $defaultValue = false ) {
+	public function pull( $key, $default_value = false ) {
 		if ( $this->has( $key ) ) {
 			$return = $this->session[ $this->prefix . $key ];
 
@@ -96,8 +101,7 @@ class Session {
 
 			return $return;
 		}
-
-		return $defaultValue;
+		return $default_value;
 	}
 
 	/**
@@ -120,8 +124,7 @@ class Session {
 	/**
 	 * Check if session bag has $key.
 	 *
-	 * @param string $key
-	 *
+	 * @param string $key Session key.
 	 * @return bool
 	 */
 	public function has( $key ) {
@@ -149,11 +152,9 @@ class Session {
 	 * @return mixed
 	 */
 	public function clear() {
-
 		foreach ( $this->keys() as $key ) {
 			unset( $this->session[ $key ] );
 		}
-
 	}
 
 	/**

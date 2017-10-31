@@ -17,7 +17,7 @@ function register_theme_routes() {
 }
 add_action( 'tiga_route', 'register_theme_routes');
 ```
-Available pattern: `:num`, `:num?`, `:any`, `:any?`, `:all`, `:all?`
+Available pattern: `:num`, `:num?`, `:any`, `:any?`, `:all`, `:all?`, or any regular expression syntax.
 ## Controller
 
 The registered route will run a function callback.  
@@ -25,7 +25,7 @@ The registered route will run a function callback.
 ```
 // executed on '/items' route
 function item_index($request) {
-    $data = $request->all(true);
+    $data = $request->all();
 	set_tiga_template( 'page-index.php', $data);
 }
 ```
@@ -54,7 +54,7 @@ Use the `$request` object to access variable in the current request. The `$reque
 - $key (string) (required) -> input name
 - return (boolean) -> return true if input key exists
 
-### `$request->hasFie( $key )`
+### `$request->hasFile( $key )`
 
 - $key (string) (required) -> file name
 - return (boolean) -> return true if input key exists
@@ -68,6 +68,19 @@ You can call a page template (theme page template) on a `Controller` using the `
 ### `set_tiga_template($template_name, $data)`
 - $template_name (string) template name / file name
 - $data (mixed) -> variable that passed to template
+
+## Route Check
+
+You can check if current page is a specific route using `is_route` function. Returns boolean `true` if route is matched.
+
+### `is_route($route)`
+- $route (string) registered route.
+
+## Set 404
+
+You can manually set a page to 404 page using `tiga_set_404` function.
+
+### `tiga_set_404()`
 
 
 ## Pagination 
@@ -153,7 +166,7 @@ $sesion->clear();
 
 - return (array) -> get all inputs
 
-How to use `$_SESSION` instead of `WP Session` on wrapper class:
+How to use `$_SESSION` instead of `WP Session` as sesion bag on wrapper class:
 ```
 define( 'TIGA_SESSION', '$_SESSION' );
 ```

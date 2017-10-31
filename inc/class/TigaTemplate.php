@@ -1,5 +1,13 @@
 <?php
+/**
+ * TigaTemplate class
+ *
+ * @package Tiga Router
+ */
 
+/**
+ * TigaTemplate class
+ */
 class TigaTemplate {
 	/**
 	 * The custom page template.
@@ -16,18 +24,30 @@ class TigaTemplate {
 	private $data;
 
 	/**
-	 * The unique instance .
+	 * The unique instance
 	 *
 	 * @var $instance
 	 */
 	private static $instance;
 
+	/**
+	 * Constructor
+	 *
+	 * @param string $template Template location.
+	 * @param mixed  $data     Passed data.
+	 */
 	public function __construct( $template, $data ) {
 		$this->template = $template;
 		$this->data = $data;
 
 	}
 
+	/**
+	 * Init template
+	 *
+	 * @param  string $template Template location.
+	 * @param  mixed  $data     Passed data.
+	 */
 	public static function init( $template, $data ) {
 
 		self::$instance = new self( $template, $data );
@@ -35,6 +55,11 @@ class TigaTemplate {
 		add_action( 'template_include', array( self::$instance, 'set_template' ) );
 	}
 
+	/**
+	 * Get Instrance
+	 *
+	 * @return mixed
+	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
 			return false;
@@ -43,9 +68,9 @@ class TigaTemplate {
 		return self::$instance;
 	}
 
-	/*
-     * Render template from set_tiga_template()
-     */
+	/**
+	 * Render template
+	 */
 	public function render_template() {
 
 		$data = $this->data;
@@ -57,10 +82,11 @@ class TigaTemplate {
 
 	}
 
+	/**
+	 * Set template
+	 */
 	function set_template() {
-
 		return TIGA_WORDPRESS_ROUTER_PATH . 'inc/tiga-template.php';
-
 	}
 
 

@@ -30,19 +30,17 @@ class Route {
 	/**
 	 * Constructor.
 	 *
-	 * @param string $path
-	 * @param string $hook
-	 * @param string $template
+	 * @param string $path Path route.
+	 * @param string $data Method and callback.
 	 */
 	public function __construct( $path, $data ) {
-		// var_dump($data);
-		// die();
+
 		$this->path = $path;
 
 		foreach ( $data as $method => $callback ) {
 
-			if ( in_array( $method, array( 'get', 'post', 'put', 'delete' ) ) ) {
-				if ( $callback ) { // callback
+			if ( in_array( $method, array( 'get', 'post', 'put', 'delete' ), true ) ) {
+				if ( $callback ) { // callback.
 					$this->hook[ $method ] = $callback;
 				}
 				$this->methods[] = $method;
@@ -53,6 +51,7 @@ class Route {
 	/**
 	 * Get the hook called when this route is matched.
 	 *
+	 * @param  string $method Request method.
 	 * @return string
 	 */
 	public function get_hook( $method = 'get' ) {
@@ -81,6 +80,7 @@ class Route {
 	/**
 	 * Checks if this route want to call a hook when matched.
 	 *
+	 * @param  string $method Request method.
 	 * @return bool
 	 */
 	public function has_hook( $method = 'get' ) {
