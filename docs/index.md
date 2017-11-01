@@ -17,7 +17,16 @@ function register_theme_routes() {
 }
 add_action( 'tiga_route', 'register_theme_routes');
 ```
-Available pattern: `:num`, `:num?`, `:any`, `:any?`, `:all`, `:all?`, or any regular expression syntax.
+#### Available pattern:
+- `:num`: only accept numeric parameters (non-greedy match)
+- `:num?`: only accept numeric parameters (greedy match)
+- `:any`: accept all url-valid parameters (non-greedy match)
+- `:any?`: accept all url-valid parameters (greedy match)
+- `:all`: accept all characters parameters (non-greedy match)
+- `:all?`: accept all characters parameters (greedy match)
+
+or you can use any regular expression, exp: `:[a-z]+`
+
 ## Controller
 
 The registered route will run a function callback.  
@@ -155,18 +164,36 @@ Session wrapper class is on `Tiga\Session`, based on `WP Session Manager` plugin
 $session = new \Tiga\Session;
 
 $sesion->set('key',$value);
-$sesion->get('key');
+$sesion->get('key',$value);
 $sesion->has('key');
 $sesion->pull('key',$value);
 $sesion->keys();
 $sesion->clear();
 ```
 
-### `$session->set($key, $value)`
+#### Set session: `$session->set($key, $value)`
+- $key (string) session key.
+- $value (mixed) session value.
 
-- return (array) -> get all inputs
+#### Get session: `$session->get($key,$value)`
+- $key (string) session key.
+- $value (string) default value if session is not exists.
+- return (mixed) session value.
 
-How to use `$_SESSION` instead of `WP Session` as sesion bag on wrapper class:
+#### Check if session exists: `$session->has($key)`
+- $key (string) session key.
+- return (boolean) session status with given key.
+
+#### Get session then delete it: `$session->pull($key,$value)`
+- $key (string) session key.
+- $value (string) default value if session is not exists.
+- return (boolean) session status with given key.
+
+#### Get all session keys: `$session->keys()`
+
+#### Clear all session: `$session->clear()`
+
+How to use `$_SESSION` instead of `WP Session` on wrapper class:
 ```
 define( 'TIGA_SESSION', '$_SESSION' );
 ```
