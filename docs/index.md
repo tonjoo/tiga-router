@@ -17,7 +17,16 @@ function register_theme_routes() {
 }
 add_action( 'tiga_route', 'register_theme_routes');
 ```
-Available pattern: `:num`, `:num?`, `:any`, `:any?`, `:all`, `:all?`
+#### Available pattern:
+- `:num`: only accept numeric parameters (non-greedy match)
+- `:num?`: only accept numeric parameters (greedy match)
+- `:any`: accept all url-valid parameters (non-greedy match)
+- `:any?`: accept all url-valid parameters (greedy match)
+- `:all`: accept all characters parameters (non-greedy match)
+- `:all?`: accept all characters parameters (greedy match)
+
+or you can use any regular expression, exp: `:[a-z]+`
+
 ## Controller
 
 The registered route will run a function callback.  
@@ -25,7 +34,7 @@ The registered route will run a function callback.
 ```
 // executed on '/items' route
 function item_index($request) {
-    $data = $request->all(true);
+    $data = $request->all();
 	set_tiga_template( 'page-index.php', $data);
 }
 ```
@@ -54,7 +63,7 @@ Use the `$request` object to access variable in the current request. The `$reque
 - $key (string) (required) -> input name
 - return (boolean) -> return true if input key exists
 
-### `$request->hasFie( $key )`
+### `$request->hasFile( $key )`
 
 - $key (string) (required) -> file name
 - return (boolean) -> return true if input key exists
@@ -68,6 +77,19 @@ You can call a page template (theme page template) on a `Controller` using the `
 ### `set_tiga_template($template_name, $data)`
 - $template_name (string) template name / file name
 - $data (mixed) -> variable that passed to template
+
+## Route Check
+
+You can check if current page is a specific route using `is_route` function. Returns boolean `true` if route is matched.
+
+### `is_route($route)`
+- $route (string) registered route.
+
+## Set 404
+
+You can manually set a page to 404 page using `tiga_set_404` function.
+
+### `tiga_set_404()`
 
 
 ## Pagination 
@@ -142,16 +164,34 @@ Session wrapper class is on `Tiga\Session`, based on `WP Session Manager` plugin
 $session = new \Tiga\Session;
 
 $sesion->set('key',$value);
-$sesion->get('key');
+$sesion->get('key',$value);
 $sesion->has('key');
 $sesion->pull('key',$value);
 $sesion->keys();
 $sesion->clear();
 ```
 
-### `$session->set($key, $value)`
+#### Set session: `$session->set($key, $value)`
+- $key (string) session key.
+- $value (mixed) session value.
 
-- return (array) -> get all inputs
+#### Get session: `$session->get($key,$value)`
+- $key (string) session key.
+- $value (string) default value if session is not exists.
+- return (mixed) session value.
+
+#### Check if session exists: `$session->has($key)`
+- $key (string) session key.
+- return (boolean) session status with given key.
+
+#### Get session then delete it: `$session->pull($key,$value)`
+- $key (string) session key.
+- $value (string) default value if session is not exists.
+- return (boolean) session status with given key.
+
+#### Get all session keys: `$session->keys()`
+
+#### Clear all session: `$session->clear()`
 
 How to use `$_SESSION` instead of `WP Session` on wrapper class:
 ```
