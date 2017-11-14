@@ -198,6 +198,10 @@ How to use `$_SESSION` instead of `WP Session` on wrapper class:
 define( 'TIGA_SESSION', '$_SESSION' );
 ```
 
+# Sample Theme
+
+https://github.com/tonjoo/tonjoo-sample-theme-wordpress
+
 # Use Case 
 
 ( Work in progress ) 
