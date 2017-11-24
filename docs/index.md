@@ -198,9 +198,25 @@ How to use `$_SESSION` instead of `WP Session` on wrapper class:
 define( 'TIGA_SESSION', '$_SESSION' );
 ```
 
+# Pixie
+
+Pixie is a database query builder for PHP created by [Muhammad Usman](https://github.com/usmanhalalit)
+
+Pixie has included to Tiga Router. Below codes will show you how to use Pixie on Tiga Router:
+
+```
+TigaPixie::get('WP_PX');
+$query = WP_PX::table('items')->select('*');
+$items = $query->get();
+
+```
+
+More about Pixie, visit: https://github.com/usmanhalalit/pixie
+
 # Sample Theme
 
 https://github.com/tonjoo/tonjoo-sample-theme-wordpress
+
 
 # Use Case 
 

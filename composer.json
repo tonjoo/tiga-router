@@ -1,0 +1,5 @@
+{
+    "require": {
+        "usmanhalalit/pixie": "2.*@dev"
+    }
+}

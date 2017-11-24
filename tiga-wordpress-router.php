@@ -16,6 +16,9 @@ if ( ! defined( 'TIGA_VAR_PREFIX' ) ) {
 	define( 'TIGA_VAR_PREFIX', 'tj_' );
 }
 
+/* composer's vendor */
+require TIGA_WORDPRESS_ROUTER_PATH . 'vendor/autoload.php';
+
 /* tiga static class */
 require TIGA_WORDPRESS_ROUTER_PATH . 'inc/class/TigaRoute.php';
 
@@ -28,6 +31,7 @@ require TIGA_WORDPRESS_ROUTER_PATH . 'inc/class/Tiga/Sanitizer.php';
 require TIGA_WORDPRESS_ROUTER_PATH . 'inc/class/Tiga/Request.php';
 require TIGA_WORDPRESS_ROUTER_PATH . 'inc/class/Tiga/Pagination.php';
 require TIGA_WORDPRESS_ROUTER_PATH . 'inc/class/Tiga/Session.php';
+require TIGA_WORDPRESS_ROUTER_PATH . 'inc/class/TigaPixie.php';
 
 /* let users change the session cookie name */
 if ( ! defined( 'WP_SESSION_COOKIE' ) ) {
