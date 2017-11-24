@@ -198,10 +198,6 @@ How to use `$_SESSION` instead of `WP Session` on wrapper class:
 define( 'TIGA_SESSION', '$_SESSION' );
 ```
 
-# Sample Theme
-
-https://github.com/tonjoo/tonjoo-sample-theme-wordpress
-
 # Pixie
 
 Pixie is a database query builder for PHP created by [Muhammad Usman](https://github.com/usmanhalalit)
@@ -216,6 +212,10 @@ $items = $query->get();
 ```
 
 More about Pixie, visit: https://github.com/usmanhalalit/pixie
+
+# Sample Theme
+
+https://github.com/tonjoo/tonjoo-sample-theme-wordpress
 
 
 # Use Case 
