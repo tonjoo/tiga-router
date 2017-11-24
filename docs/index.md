@@ -202,6 +202,22 @@ define( 'TIGA_SESSION', '$_SESSION' );
 
 https://github.com/tonjoo/tonjoo-sample-theme-wordpress
 
+# Pixie
+
+Pixie is a database query builder for PHP created by [Muhammad Usman](https://github.com/usmanhalalit)
+
+Pixie has included to Tiga Router. Below codes will show you how to use Pixie on Tiga Router:
+
+```
+TigaPixie::get('WP_PX');
+$query = WP_PX::table('items')->select('*');
+$items = $query->get();
+
+```
+
+More about Pixie, visit: https://github.com/usmanhalalit/pixie
+
+
 # Use Case 
 
 ( Work in progress ) 
