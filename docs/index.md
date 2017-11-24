@@ -198,7 +198,7 @@ How to use `$_SESSION` instead of `WP Session` on wrapper class:
 define( 'TIGA_SESSION', '$_SESSION' );
 ```
 
-# Pixie
+# Query Builder: Pixie
 
 Pixie is a database query builder for PHP created by [Muhammad Usman](https://github.com/usmanhalalit)
 
