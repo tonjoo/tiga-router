@@ -174,6 +174,6 @@ class Session {
 	 * @return mixed
 	 */
 	public function delete_old_sessions() {
-		WP_Session_Utils::delete_old_sessions();
+		\WP_Session_Utils::delete_old_sessions();
 	}
 }
