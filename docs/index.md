@@ -213,9 +213,9 @@ $items = $query->get();
 
 More about Pixie, visit: https://github.com/usmanhalalit/pixie
 
-# Sample Theme
+# Sample Theme and CRUD 
 
-https://github.com/tonjoo/tonjoo-sample-theme-wordpress
+https://github.com/tonjoo/tiga-theme-sample
 
 
 # Use Case 
