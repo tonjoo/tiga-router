@@ -213,14 +213,29 @@ $items = $query->get();
 
 More about Pixie, visit: https://github.com/usmanhalalit/pixie
 
+
+# Handle Ajax Request
+
+Sample code to handle ajax request on `/sample_ajax_tiga` path
+
+```
+function register_theme_routes() {
+	TigaRoute::get( '/sample_ajax_tiga', 'ajax_sample');
+}
+add_action( 'tiga_route', 'register_theme_routes');
+
+function ajax_sample($request) {
+
+    echo $json;
+
+    header('Content-type: application/json');
+    die();
+}
+```
+
 # Sample Theme and CRUD 
 
 https://github.com/tonjoo/tiga-theme-sample
 
 
-# Use Case 
 
-( Work in progress ) 
-
-1. Ajax Call
-2. Custom front end for user generated content 
