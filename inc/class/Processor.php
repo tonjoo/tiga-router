@@ -119,6 +119,10 @@ class Processor {
 
 		$this->router->compile();
 
+		// skip if admin
+		if( is_admin() )
+			return;
+
 		$routes_hash = md5( serialize( $routes ) );
 
 		if ( $routes_hash != get_option( 'tiga_route_hash' ) ) {
