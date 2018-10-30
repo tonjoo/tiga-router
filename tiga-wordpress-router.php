@@ -16,6 +16,11 @@ if ( ! defined( 'TIGA_VAR_PREFIX' ) ) {
 	define( 'TIGA_VAR_PREFIX', 'tj_' );
 }
 
+if ( ! defined( 'TIGA_SESSION_TABLE' ) ) {
+	global $wpdb;
+	define( 'TIGA_SESSION_TABLE', $wpdb->prefix . 'tiga_sessions' );
+}
+
 /* composer's vendor */
 require TIGA_WORDPRESS_ROUTER_PATH . 'vendor/autoload.php';
 
@@ -103,6 +108,30 @@ if ( ! function_exists( 'tiga_set_404' ) ) {
 		status_header( 404 );
 		get_template_part( 404 );
 		exit();
+	}
+}
+
+register_activation_hook( __FILE__, 'tiga_install_db' );
+function tiga_install_db() {
+	global $wpdb;
+	// create db table.
+	$charset_collate = $wpdb->get_charset_collate();
+
+	if ( $wpdb->get_var( "SHOW TABLES LIKE '" . TIGA_SESSION_TABLE . "'" ) != TIGA_SESSION_TABLE ) {
+
+		$sql = 'CREATE TABLE ' . TIGA_SESSION_TABLE . "
+			(
+			  session_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+			  session_key char(32) NOT NULL,
+			  session_value longtext NOT NULL,
+			  session_expiry BIGINT UNSIGNED NOT NULL,
+			  PRIMARY KEY  (session_id),
+			  UNIQUE KEY session_key (session_key)
+			) $charset_collate;
+			";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta( $sql );
 	}
 }
 

@@ -16,7 +16,7 @@ class WP_Session_Utils {
 	public static function count_sessions() {
 		global $wpdb;
 
-		$query = "SELECT COUNT(*) FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%'";
+		$query = "SELECT COUNT(*) FROM " . TIGA_SESSION_TABLE;
 
 		/**
 		 * Filter the query in case tables are non-standard.
@@ -36,6 +36,8 @@ class WP_Session_Utils {
 	 * @param null|string $date
 	 */
 	public static function create_dummy_session( $date = null ) {
+		global $wpdb;
+
 		// Generate our date
 		if ( null !== $date ) {
 			$time = strtotime( $date );
@@ -60,8 +62,19 @@ class WP_Session_Utils {
 		$session_id = self::generate_id();
 
 		// Store the session
-		add_option( "_wp_session_{$session_id}", array(), '', 'no' );
-		add_option( "_wp_session_expires_{$session_id}", $expires, '', 'no' );
+		$wpdb->insert(
+			TIGA_SESSION_TABLE,
+			array(
+				'session_key' => $session_id,
+				'session_value' => maybe_serialize( array() ),
+				'session_expiry' => $expires
+			),
+			array(
+				'%s',
+				'%s',
+				'%d'
+			)
+		);
 	}
 
 	/**
@@ -77,22 +90,18 @@ class WP_Session_Utils {
 		global $wpdb;
 
 		$limit = absint( $limit );
-		$keys = $wpdb->get_results( "SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_wp_session_expires_%' ORDER BY option_value ASC LIMIT 0, {$limit}" );
+		$sessions = $wpdb->get_results( "SELECT * FROM " . TIGA_SESSION_TABLE . " ORDER BY session_id ASC LIMIT 0, {$limit}" );
 
 		$now = time();
 		$expired = array();
 		$count = 0;
 
-		foreach ( $keys as $expiration ) {
-			$key = $expiration->option_name;
-			$expires = $expiration->option_value;
+		foreach ( $sessions as $session ) {
+			$key = $session->session_key;
+			$expires = $session->session_expiry;
 
 			if ( $now > $expires ) {
-				$session_id = preg_replace( '/[^A-Za-z0-9_]/', '', substr( $key, 20 ) );
-
 				$expired[] = $key;
-				$expired[] = "_wp_session_{$session_id}";
-
 				$count += 1;
 			}
 		}
@@ -101,7 +110,7 @@ class WP_Session_Utils {
 		if ( ! empty( $expired ) ) {
 			$placeholders = array_fill( 0, count( $expired ), '%s' );
 			$format = implode( ', ', $placeholders );
-			$query = "DELETE FROM $wpdb->options WHERE option_name IN ($format)";
+			$query = "DELETE FROM " . TIGA_SESSION_TABLE . " WHERE session_key IN ($format)";
 
 			$prepared = $wpdb->prepare( $query, $expired );
 			$wpdb->query( $prepared );
@@ -120,9 +129,9 @@ class WP_Session_Utils {
 	public static function delete_all_sessions() {
 		global $wpdb;
 
-		$count = $wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE '_wp_session_%'" );
+		$count = $wpdb->query( "DELETE FROM " . TIGA_SESSION_TABLE );
 
-		return (int) ( $count / 2 );
+		return (int) $count;
 	}
 
 	/**
