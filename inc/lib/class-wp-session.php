@@ -70,6 +70,7 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 */
 	protected function __construct() {
 		if ( isset( $_COOKIE[ WP_SESSION_COOKIE ] ) ) {
+			global $wpdb;
 			$cookie = stripslashes( $_COOKIE[ WP_SESSION_COOKIE ] );
 			$cookie_crumbs = explode( '||', $cookie );
 
@@ -80,8 +81,13 @@ final class WP_Session extends Recursive_ArrayAccess {
 			// Update the session expiration if we're past the variant time
 			if ( time() > $this->exp_variant ) {
 				$this->set_expiration();
-				delete_option( "_wp_session_expires_{$this->session_id}" );
-				add_option( "_wp_session_expires_{$this->session_id}", $this->expires, '', 'no' );
+				$wpdb->update(
+					TIGA_SESSION_TABLE,
+					array( 'session_expiry' => $this->expires ),
+					array( 'session_key' => $this->session_id ),
+					array( '%d' ),
+					array( '%s' )
+				);
 			}
 		} else {
 			$this->session_id = WP_Session_Utils::generate_id();
@@ -137,7 +143,14 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * @return array
 	 */
 	protected function read_data() {
-		$this->container = get_option( "_wp_session_{$this->session_id}", array() );
+		global $wpdb;
+
+		$data = $wpdb->get_var( $wpdb->prepare( "SELECT session_value FROM " . TIGA_SESSION_TABLE . " WHERE session_key = %s", $this->session_id ) );
+		if ( ! is_null( $data ) ) {
+			$this->container = maybe_unserialize( $data );
+		} else {
+			$this->container = array();
+		}
 
 		return $this->container;
 	}
@@ -146,14 +159,31 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * Write the data from the current session to the data storage system.
 	 */
 	public function write_data() {
-		$option_key = "_wp_session_{$this->session_id}";
+		global $wpdb;
 
-		if ( false === get_option( $option_key ) ) {
-			add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
-			add_option( "_wp_session_expires_{$this->session_id}", $this->expires, '', 'no' );
+		$is_exists = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM " . TIGA_SESSION_TABLE . " WHERE session_key = %s", $this->session_id ) );
+		if ( 0 === intval( $is_exists ) ) {
+			$wpdb->insert(
+				TIGA_SESSION_TABLE,
+				array(
+					'session_key' => $this->session_id,
+					'session_value' => maybe_serialize( $this->container ),
+					'session_expiry' => $this->expires
+				),
+				array(
+					'%s',
+					'%s',
+					'%d'
+				)
+			);
 		} else {
-			delete_option( "_wp_session_{$this->session_id}" );
-			add_option( "_wp_session_{$this->session_id}", $this->container, '', 'no' );
+			$wpdb->update(
+				TIGA_SESSION_TABLE,
+				array( 'session_value' => maybe_serialize( $this->container ) ),
+				array( 'session_key' => $this->session_id ),
+				array( '%s' ),
+				array( '%s' )
+			);
 		}
 	}
 
@@ -190,8 +220,13 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * @param bool $delete_old Flag whether or not to delete the old session data from the server.
 	 */
 	public function regenerate_id( $delete_old = false ) {
+		global $wpdb;
 		if ( $delete_old ) {
-			delete_option( "_wp_session_{$this->session_id}" );
+			$wpdb->delete(
+				$this->wd_table,
+				array( 'session_key' => $this->session_id ),
+				array( '%s' )
+			);
 		}
 
 		$this->session_id = WP_Session_Utils::generate_id();
