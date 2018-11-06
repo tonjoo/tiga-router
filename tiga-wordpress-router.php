@@ -5,7 +5,7 @@
  * Author: todiadiyatmo
  * Author URI: http://tonjoostudio.com/
  * Plugin URI: http://tonjoostudio.com
- * Version: 1.0
+ * Version: 1.1
  * Text Domain: tiga-router
  *
  * @package Tiga Router
