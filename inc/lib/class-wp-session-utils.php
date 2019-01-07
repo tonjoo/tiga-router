@@ -88,35 +88,7 @@ class WP_Session_Utils {
 	 */
 	public static function delete_old_sessions( $limit = 1000 ) {
 		global $wpdb;
-
-		$limit = absint( $limit );
-		$sessions = $wpdb->get_results( "SELECT * FROM " . TIGA_SESSION_TABLE . " ORDER BY session_id ASC LIMIT 0, {$limit}" );
-
-		$now = time();
-		$expired = array();
-		$count = 0;
-
-		foreach ( $sessions as $session ) {
-			$key = $session->session_key;
-			$expires = $session->session_expiry;
-
-			if ( $now > $expires ) {
-				$expired[] = $key;
-				$count += 1;
-			}
-		}
-
-		// Delete expired sessions
-		if ( ! empty( $expired ) ) {
-			$placeholders = array_fill( 0, count( $expired ), '%s' );
-			$format = implode( ', ', $placeholders );
-			$query = "DELETE FROM " . TIGA_SESSION_TABLE . " WHERE session_key IN ($format)";
-
-			$prepared = $wpdb->prepare( $query, $expired );
-			$wpdb->query( $prepared );
-		}
-
-		return $count;
+		return $wpdb->query( $wpdb->prepare( "DELETE FROM " . TIGA_SESSION_TABLE . " WHERE session_expiry < %d", time() ) );
 	}
 
 	/**
