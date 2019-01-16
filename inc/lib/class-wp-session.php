@@ -69,6 +69,9 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * @uses apply_filters Calls `wp_session_expiration` to determine how long until sessions expire.
 	 */
 	protected function __construct() {
+
+		add_action( 'wp_login', array($this,'tiga_update_cookie_wp' ) );
+
 		if ( isset( $_COOKIE[ WP_SESSION_COOKIE ] ) ) {
 			global $wpdb;
 			$cookie = stripslashes( $_COOKIE[ WP_SESSION_COOKIE ] );
@@ -92,12 +95,19 @@ final class WP_Session extends Recursive_ArrayAccess {
 		} else {
 			$this->session_id = WP_Session_Utils::generate_id();
 			$this->set_expiration();
+			$this->set_cookie();
 		}
 
 		$this->read_data();
+	}
 
-		$this->set_cookie();
+	/**
+	 * update cookie wp session  if login triggered
+	 */
 
+	public function tiga_update_cookie_wp() {
+			$this->set_expiration();
+			$this->set_cookie();
 	}
 
 	/**
@@ -120,7 +130,16 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 */
 	protected function set_expiration() {
 		$this->exp_variant = time() + (int) apply_filters( 'wp_session_expiration_variant', 24 * 60 );
-		$this->expires = time() + (int) apply_filters( 'wp_session_expiration', 30 * 60 );
+
+		// condition remember me
+		if( isset($_POST['rememberme']) ){
+			$current_user = wp_get_current_user();
+			$expiration = time() + apply_filters( 'auth_cookie_expiration', 14 * DAY_IN_SECONDS, $current_user->ID , true );
+			$expire = $expiration + ( 12 * HOUR_IN_SECONDS );
+			$this->expires = $expire;
+		} else {
+			$this->expires = 0;
+		}
 	}
 
 	/**
@@ -130,9 +149,10 @@ final class WP_Session extends Recursive_ArrayAccess {
 	 * @uses apply_filters Calls `wp_session_cookie_httponly` to set the $httponly parameter of setcookie()
 	 */
 	protected function set_cookie() {
-			$secure = apply_filters( 'wp_session_cookie_secure', false );
-			$httponly = apply_filters( 'wp_session_cookie_httponly', false );
+		$secure = apply_filters( 'wp_session_cookie_secure', false );
+		$httponly = apply_filters( 'wp_session_cookie_httponly', false );
 		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+
 	}
 
 	/**
