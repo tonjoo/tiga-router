@@ -16,266 +16,269 @@
  * @package WordPress
  * @since   3.7.0
  */
-final class WP_Session extends Recursive_ArrayAccess {
-	/**
-	 * ID of the current session.
-	 *
-	 * @var string
-	 */
-	public $session_id;
+final class WP_Session extends Recursive_ArrayAccess
+{
+    /**
+     * ID of the current session.
+     *
+     * @var string
+     */
+    public $session_id;
 
-	/**
-	 * Unix timestamp when session expires.
-	 *
-	 * @var int
-	 */
-	protected $expires;
+    /**
+     * Unix timestamp when session expires.
+     *
+     * @var int
+     */
+    protected $expires;
 
-	/**
-	 * Unix timestamp indicating when the expiration time needs to be reset.
-	 *
-	 * @var int
-	 */
-	protected $exp_variant;
+    /**
+     * Unix timestamp indicating when the expiration time needs to be reset.
+     *
+     * @var int
+     */
+    protected $exp_variant;
 
-	/**
-	 * Singleton instance.
-	 *
-	 * @var bool|WP_Session
-	 */
-	private static $instance = false;
+    /**
+     * Singleton instance.
+     *
+     * @var bool|WP_Session
+     */
+    private static $instance = false;
 
-	/**
-	 * Retrieve the current session instance.
-	 *
-	 * @param bool $session_id Session ID from which to populate data.
-	 *
-	 * @return bool|WP_Session
-	 */
-	public static function get_instance() {
-		if ( ! self::$instance ) {
-			self::$instance = new self();
-		}
+    /**
+     * Retrieve the current session instance.
+     *
+     * @param bool $session_id Session ID from which to populate data.
+     *
+     * @return bool|WP_Session
+     */
+    public static function get_instance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self();
+        }
 
-		return self::$instance;
-	}
+        return self::$instance;
+    }
 
-	/**
-	 * Default constructor.
-	 * Will rebuild the session collection from the given session ID if it exists. Otherwise, will
-	 * create a new session with that ID.
-	 *
-	 * @param $session_id
-	 * @uses apply_filters Calls `wp_session_expiration` to determine how long until sessions expire.
-	 */
-	protected function __construct() {
+    /**
+     * Default constructor.
+     * Will rebuild the session collection from the given session ID if it exists. Otherwise, will
+     * create a new session with that ID.
+     *
+     * @param $session_id
+     * @uses apply_filters Calls `wp_session_expiration` to determine how long until sessions expire.
+     */
+    protected function __construct()
+    {
+        if (isset($_COOKIE[WP_SESSION_COOKIE])) {
+            global $wpdb;
+            $cookie        = stripslashes($_COOKIE[WP_SESSION_COOKIE]);
+            $cookie_crumbs = explode('||', $cookie);
 
-		add_action( 'wp_login', array($this,'tiga_update_cookie_wp' ) );
+            $this->session_id  = preg_replace('/[^A-Za-z0-9_]/', '', $cookie_crumbs[0]);
+            $this->expires     = absint($cookie_crumbs[1]);
+            $this->exp_variant = absint($cookie_crumbs[2]);
 
-		if ( isset( $_COOKIE[ WP_SESSION_COOKIE ] ) ) {
-			global $wpdb;
-			$cookie = stripslashes( $_COOKIE[ WP_SESSION_COOKIE ] );
-			$cookie_crumbs = explode( '||', $cookie );
+            // Update the session expiration if we're past the variant time
+            if (time() > $this->exp_variant) {
+                $this->set_expiration();
+                $wpdb->update(
+                    TIGA_SESSION_TABLE,
+                    array('session_expiry' => $this->expires),
+                    array('session_key' => $this->session_id),
+                    array('%d'),
+                    array('%s')
+                );
+            }
+        } else {
+            $this->session_id = WP_Session_Utils::generate_id();
+            $this->set_expiration();
+            $this->set_cookie();
+        }
 
-			$this->session_id = preg_replace( '/[^A-Za-z0-9_]/', '', $cookie_crumbs[0] );
-			$this->expires = absint( $cookie_crumbs[1] );
-			$this->exp_variant = absint( $cookie_crumbs[2] );
+        $this->read_data();
+    }
 
-			// Update the session expiration if we're past the variant time
-			if ( time() > $this->exp_variant ) {
-				$this->set_expiration();
-				$wpdb->update(
-					TIGA_SESSION_TABLE,
-					array( 'session_expiry' => $this->expires ),
-					array( 'session_key' => $this->session_id ),
-					array( '%d' ),
-					array( '%s' )
-				);
-			}
-		} else {
-			$this->session_id = WP_Session_Utils::generate_id();
-			$this->set_expiration();
-			$this->set_cookie();
-		}
+    /**
+     * Set both the expiration time and the expiration variant.
+     *
+     * If the current time is below the variant, we don't update the session's expiration time. If it's
+     * greater than the variant, then we update the expiration time in the database.  This prevents
+     * writing to the database on every page load for active sessions and only updates the expiration
+     * time if we're nearing when the session actually expires.
+     *
+     * By default, the expiration time is set to 30 minutes.
+     * By default, the expiration variant is set to 24 minutes.
+     *
+     * As a result, the session expiration time - at a maximum - will only be written to the database once
+     * every 24 minutes.  After 30 minutes, the session will have been expired. No cookie will be sent by
+     * the browser, and the old session will be queued for deletion by the garbage collector.
+     *
+     * @uses apply_filters Calls `wp_session_expiration_variant` to get the max update window for session data.
+     * @uses apply_filters Calls `wp_session_expiration` to get the standard expiration time for sessions.
+     */
+    protected function set_expiration()
+    {
+        $this->exp_variant = time() + (int) apply_filters('wp_session_expiration_variant', 24 * 60);
+        $auth_cookie       = wp_parse_auth_cookie();
+        $current_user      = wp_get_current_user();
+        $expiration        = time() + apply_filters('auth_cookie_expiration', 2 * DAY_IN_SECONDS, $current_user->ID, false);
 
-		$this->read_data();
-	}
+        if ($auth_cookie) {
+            if ($expiration != $auth_cookie['expiration']) {
+                $expire        = $auth_cookie['expiration'] + (12 * HOUR_IN_SECONDS);
+                $this->expires = $expire;
+            } else {
+                $this->expires = 0;
+            }
+        }
+    }
 
-	/**
-	 * update cookie wp session  if login triggered
-	 */
+    /**
+     * Set the session cookie
+     *
+     * @uses apply_filters Calls `wp_session_cookie_secure` to set the $secure parameter of setcookie()
+     * @uses apply_filters Calls `wp_session_cookie_httponly` to set the $httponly parameter of setcookie()
+     */
+    protected function set_cookie()
+    {
+        $secure   = apply_filters('wp_session_cookie_secure', false);
+        $httponly = apply_filters('wp_session_cookie_httponly', false);
+        setcookie(WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant, $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly);
 
-	public function tiga_update_cookie_wp() {
-			$this->set_expiration();
-			$this->set_cookie();
-	}
+    }
 
-	/**
-	 * Set both the expiration time and the expiration variant.
-	 *
-	 * If the current time is below the variant, we don't update the session's expiration time. If it's
-	 * greater than the variant, then we update the expiration time in the database.  This prevents
-	 * writing to the database on every page load for active sessions and only updates the expiration
-	 * time if we're nearing when the session actually expires.
-	 *
-	 * By default, the expiration time is set to 30 minutes.
-	 * By default, the expiration variant is set to 24 minutes.
-	 *
-	 * As a result, the session expiration time - at a maximum - will only be written to the database once
-	 * every 24 minutes.  After 30 minutes, the session will have been expired. No cookie will be sent by
-	 * the browser, and the old session will be queued for deletion by the garbage collector.
-	 *
-	 * @uses apply_filters Calls `wp_session_expiration_variant` to get the max update window for session data.
-	 * @uses apply_filters Calls `wp_session_expiration` to get the standard expiration time for sessions.
-	 */
-	protected function set_expiration() {
-		$this->exp_variant = time() + (int) apply_filters( 'wp_session_expiration_variant', 24 * 60 );
+    /**
+     * Read data from a transient for the current session.
+     *
+     * Automatically resets the expiration time for the session transient to some time in the future.
+     *
+     * @return array
+     */
+    protected function read_data()
+    {
+        global $wpdb;
 
-		// condition remember me
-		if( isset($_POST['rememberme']) ){
-			$current_user = wp_get_current_user();
-			$expiration = time() + apply_filters( 'auth_cookie_expiration', 14 * DAY_IN_SECONDS, $current_user->ID , true );
-			$expire = $expiration + ( 12 * HOUR_IN_SECONDS );
-			$this->expires = $expire;
-		} else {
-			$this->expires = 0;
-		}
-	}
+        $data = $wpdb->get_var($wpdb->prepare("SELECT session_value FROM " . TIGA_SESSION_TABLE . " WHERE session_key = %s", $this->session_id));
+        if (!is_null($data)) {
+            $this->container = maybe_unserialize($data);
+        } else {
+            $this->container = array();
+        }
 
-	/**
-	 * Set the session cookie
-	 *
-	 * @uses apply_filters Calls `wp_session_cookie_secure` to set the $secure parameter of setcookie()
-	 * @uses apply_filters Calls `wp_session_cookie_httponly` to set the $httponly parameter of setcookie()
-	 */
-	protected function set_cookie() {
-		$secure = apply_filters( 'wp_session_cookie_secure', false );
-		$httponly = apply_filters( 'wp_session_cookie_httponly', false );
-		setcookie( WP_SESSION_COOKIE, $this->session_id . '||' . $this->expires . '||' . $this->exp_variant , $this->expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+        return $this->container;
+    }
 
-	}
+    /**
+     * Write the data from the current session to the data storage system.
+     */
+    public function write_data()
+    {
+        global $wpdb;
 
-	/**
-	 * Read data from a transient for the current session.
-	 *
-	 * Automatically resets the expiration time for the session transient to some time in the future.
-	 *
-	 * @return array
-	 */
-	protected function read_data() {
-		global $wpdb;
+        $is_exists = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM " . TIGA_SESSION_TABLE . " WHERE session_key = %s", $this->session_id));
+        if (0 === intval($is_exists)) {
+            $wpdb->insert(
+                TIGA_SESSION_TABLE,
+                array(
+                    'session_key'    => $this->session_id,
+                    'session_value'  => maybe_serialize($this->container),
+                    'session_expiry' => $this->expires,
+                ),
+                array(
+                    '%s',
+                    '%s',
+                    '%d',
+                )
+            );
+        } else {
+            $wpdb->update(
+                TIGA_SESSION_TABLE,
+                array('session_value' => maybe_serialize($this->container)),
+                array('session_key' => $this->session_id),
+                array('%s'),
+                array('%s')
+            );
+        }
+    }
 
-		$data = $wpdb->get_var( $wpdb->prepare( "SELECT session_value FROM " . TIGA_SESSION_TABLE . " WHERE session_key = %s", $this->session_id ) );
-		if ( ! is_null( $data ) ) {
-			$this->container = maybe_unserialize( $data );
-		} else {
-			$this->container = array();
-		}
+    /**
+     * Output the current container contents as a JSON-encoded string.
+     *
+     * @return string
+     */
+    public function json_out()
+    {
+        return json_encode($this->container);
+    }
 
-		return $this->container;
-	}
+    /**
+     * Decodes a JSON string and, if the object is an array, overwrites the session container with its contents.
+     *
+     * @param string $data
+     *
+     * @return bool
+     */
+    public function json_in($data)
+    {
+        $array = json_decode($data);
 
-	/**
-	 * Write the data from the current session to the data storage system.
-	 */
-	public function write_data() {
-		global $wpdb;
+        if (is_array($array)) {
+            $this->container = $array;
+            return true;
+        }
 
-		$is_exists = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM " . TIGA_SESSION_TABLE . " WHERE session_key = %s", $this->session_id ) );
-		if ( 0 === intval( $is_exists ) ) {
-			$wpdb->insert(
-				TIGA_SESSION_TABLE,
-				array(
-					'session_key' => $this->session_id,
-					'session_value' => maybe_serialize( $this->container ),
-					'session_expiry' => $this->expires
-				),
-				array(
-					'%s',
-					'%s',
-					'%d'
-				)
-			);
-		} else {
-			$wpdb->update(
-				TIGA_SESSION_TABLE,
-				array( 'session_value' => maybe_serialize( $this->container ) ),
-				array( 'session_key' => $this->session_id ),
-				array( '%s' ),
-				array( '%s' )
-			);
-		}
-	}
+        return false;
+    }
 
-	/**
-	 * Output the current container contents as a JSON-encoded string.
-	 *
-	 * @return string
-	 */
-	public function json_out() {
-		return json_encode( $this->container );
-	}
+    /**
+     * Regenerate the current session's ID.
+     *
+     * @param bool $delete_old Flag whether or not to delete the old session data from the server.
+     */
+    public function regenerate_id($delete_old = false)
+    {
+        global $wpdb;
+        if ($delete_old) {
+            $wpdb->delete(
+                $this->wd_table,
+                array('session_key' => $this->session_id),
+                array('%s')
+            );
+        }
 
-	/**
-	 * Decodes a JSON string and, if the object is an array, overwrites the session container with its contents.
-	 *
-	 * @param string $data
-	 *
-	 * @return bool
-	 */
-	public function json_in( $data ) {
-		$array = json_decode( $data );
+        $this->session_id = WP_Session_Utils::generate_id();
 
-		if ( is_array( $array ) ) {
-			$this->container = $array;
-			return true;
-		}
+        $this->set_cookie();
+    }
 
-		return false;
-	}
+    /**
+     * Check if a session has been initialized.
+     *
+     * @return bool
+     */
+    public function session_started()
+    {
+        return !!self::$instance;
+    }
 
-	/**
-	 * Regenerate the current session's ID.
-	 *
-	 * @param bool $delete_old Flag whether or not to delete the old session data from the server.
-	 */
-	public function regenerate_id( $delete_old = false ) {
-		global $wpdb;
-		if ( $delete_old ) {
-			$wpdb->delete(
-				$this->wd_table,
-				array( 'session_key' => $this->session_id ),
-				array( '%s' )
-			);
-		}
+    /**
+     * Return the read-only cache expiration value.
+     *
+     * @return int
+     */
+    public function cache_expiration()
+    {
+        return $this->expires;
+    }
 
-		$this->session_id = WP_Session_Utils::generate_id();
-
-		$this->set_cookie();
-	}
-
-	/**
-	 * Check if a session has been initialized.
-	 *
-	 * @return bool
-	 */
-	public function session_started() {
-		return ! ! self::$instance;
-	}
-
-	/**
-	 * Return the read-only cache expiration value.
-	 *
-	 * @return int
-	 */
-	public function cache_expiration() {
-		return $this->expires;
-	}
-
-	/**
-	 * Flushes all session variables.
-	 */
-	public function reset() {
-		$this->container = array();
-	}
+    /**
+     * Flushes all session variables.
+     */
+    public function reset()
+    {
+        $this->container = array();
+    }
 }
