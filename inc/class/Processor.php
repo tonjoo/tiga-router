@@ -127,11 +127,11 @@ class Processor {
 		if( is_admin() )
 			return;
 
-		$route_list_hast = md5( serialize( $route_list ) );
+		$route_list_hash = md5( serialize( $route_list ) );
 
-		if ( strval($route_list_hast) != strval( get_option( 'tiga_route_md5_hash' ) ) ) {
+		if ( strval($route_list_hash) != strval( get_option( 'tiga_route_md5_hash' ) ) ) {
 			flush_rewrite_rules();
-			update_option( 'tiga_route_md5_hash', $route_list_hast, 'no' );
+			update_option( 'tiga_route_md5_hash', $route_list_hash, 'no' );
 		}
 	}
 }
