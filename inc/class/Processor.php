@@ -111,10 +111,14 @@ class Processor {
 	 * Register all our routes into WordPress.
 	 */
 	public function register_routes() {
+
 		$routes = apply_filters( 'my_plugin_routes', $this->routes );
+
+		$route_list =  array();
 
 		foreach ( $routes as $name => $route ) {
 			$this->router->add_route( $name, $route );
+			$route_list[] = $name;
 		}
 
 		$this->router->compile();
@@ -123,11 +127,11 @@ class Processor {
 		if( is_admin() )
 			return;
 
-		$routes_hash = md5( serialize( $routes ) );
+		$route_list_hash = md5( serialize( $route_list ) );
 
-		if ( $routes_hash != get_option( 'tiga_route_hash' ) ) {
+		if ( strval($route_list_hash) != strval( get_option( 'tiga_route_md5_hash' ) ) ) {
 			flush_rewrite_rules();
-			update_option( 'tiga_route_hash', $routes_hash );
+			update_option( 'tiga_route_md5_hash', $route_list_hash, 'no' );
 		}
 	}
 }
