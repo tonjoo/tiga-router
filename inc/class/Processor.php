@@ -63,14 +63,25 @@ class Processor {
 		if ( ! $this->matched_route instanceof Route || ! $this->matched_route->has_hook( $method ) ) {
 			return;
 		}
-		if ( is_callable( $this->matched_route->get_hook( $method ) ) ) {
+
+		$callback = $this->matched_route->get_hook( $method );
+
+		if ( is_callable( $callback ) ) {
 			add_filter(
 				'body_class', function( $classes ) {
 					array_push( $classes, 'tiga-router' );
 					return $classes;
 				}
 			);
-			call_user_func( $this->matched_route->get_hook( $method ), new Tiga\Request() );
+
+			if( is_array( $callback ) ) {
+				$callbackClass = new $callback[0];
+				call_user_func_array( [ $callbackClass , $callback[1] ] , array( new Tiga\Request() ) );
+			}
+			else {
+				call_user_func( $callback, new Tiga\Request() );
+			}
+
 		}
 	}
 
