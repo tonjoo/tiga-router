@@ -25,10 +25,6 @@ function register_theme_routes() {
 	TigaRoute::delete( '/items/{id:num}', 'item_delete');
 	TigaRoute::get('/items', 'item_index');
 
-	// call method inside class
-	TigaRoute::get( '/items/new', array('class_name','method_name') );
-
-
 }
 
 add_action( 'tiga_route', 'register_theme_routes');

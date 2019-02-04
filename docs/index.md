@@ -17,6 +17,41 @@ function register_theme_routes() {
 }
 add_action( 'tiga_route', 'register_theme_routes');
 ```
+
+## Class based callback
+
+For class function callback, make sure no namespace is used. Or if it is used make used make sure it is loaded properly.
+
+
+```
+function register_theme_routes() {
+
+	// call method inside class
+	TigaRoute::get( '/items/new', array('class_name','method_name') );
+
+}
+
+add_action( 'tiga_route', 'register_theme_routes');
+```
+
+## Caveat
+
+Tiga Router is using route hash to conditionaly flush rewrite rules. However this come with some caveat : Do not make conditional route registration. 
+
+
+```
+
+// Example only , do not do this
+
+if( is_admin() ) {
+	TigaRoute::get( '/items/new', 'item_new');	
+}
+
+TigaRoute::get( '/items/list', 'item_list');
+```
+
+When the route hash is different, it will flush WordPress rewrite rules each time we access different page
+
 #### Available pattern:
 - `:num`: only accept numeric parameters (non-greedy match)
 - `:num?`: only accept numeric parameters (greedy match)
