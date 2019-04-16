@@ -125,7 +125,7 @@ class Processor {
 
 		$routes = apply_filters( 'my_plugin_routes', $this->routes );
 
-		$route_list =  array();
+		$route_list = array();
 
 		foreach ( $routes as $name => $route ) {
 			$this->router->add_route( $name, $route );
@@ -134,15 +134,43 @@ class Processor {
 
 		$this->router->compile();
 
-		// skip if admin
-		if( is_admin() )
+		// skip if admin.
+		if ( is_admin() ) {
 			return;
+		}
 
-		$route_list_hash = md5( serialize( $route_list ) );
+		$tiga_route_found = false;
 
-		if ( strval($route_list_hash) != strval( get_option( 'tiga_route_md5_hash' ) ) ) {
-			flush_rewrite_rules();
-			update_option( 'tiga_route_md5_hash', $route_list_hash, 'no' );
+		$rewrite_rules = get_option( 'rewrite_rules' );
+
+		foreach ( $route_list as $route ) {
+			$tiga_route_found = false;
+
+			if ( ! empty( $rewrite_rules ) ) {
+				foreach ( $rewrite_rules as $rule => $url ) {
+
+					$query = wp_parse_url( $url, PHP_URL_QUERY );
+					parse_str( $query, $params );
+
+					if ( ! empty( $params['tiga_route'] ) && $route === $params['tiga_route'] ) {
+						$tiga_route_found = true;
+						break;
+					}
+				}
+			}
+
+			if ( false === $tiga_route_found ) {
+				break;
+			}
+		}
+
+		if ( false === $tiga_route_found ) {
+			$route_list_hash = md5( serialize( $route_list ) );
+
+			if ( strval( $route_list_hash ) !== strval( wp_cache_get( 'tiga_route_md5_hash' ) ) ) {
+				flush_rewrite_rules();
+				wp_cache_set( 'tiga_route_md5_hash', $route_list_hash );
+			}
 		}
 	}
 }
