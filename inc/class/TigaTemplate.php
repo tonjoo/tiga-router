@@ -80,15 +80,18 @@ class TigaTemplate {
 	 * Render template
 	 */
 	public function render_template() {
-		$data = $this->data;
-		
 		if ( $this->is_direct_path ) {
 			$new_template = $this->template;
 		} else {
 			$new_template = locate_template( array( $this->template ) );
 		}
+
+		// include variable $data to the template
+		set_query_var( 'data', $this->data );
+
+		// load template
 		if ( '' != $new_template ) {
-			include $new_template ;
+			load_template( $new_template );
 		}
 	}
 
@@ -99,8 +102,4 @@ class TigaTemplate {
 		return TIGA_WORDPRESS_ROUTER_PATH . 'inc/tiga-template.php';
 	}
 
-
 }
-
-
-
