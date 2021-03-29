@@ -66,21 +66,23 @@ add_action(
 /**
  * An alias for tiga_set_template function
  *
- * @param string $template Template location.
- * @param mixed  $data     Passed data to template.
+ * @param string $template       Template location.
+ * @param mixed  $data           Passed data to template.
+ * @param bool   $is_direct_path When the $template is a direct file path. Useful if we use tiga-router on a plugin instead of theme.
  */
-function set_tiga_template( $template, $data ) {
-	tiga_set_template( $template, $data );
+function set_tiga_template( $template, $data, $is_direct_path = false ) {
+	tiga_set_template( $template, $data, $is_direct_path );
 }
 
 /**
  * Init template view
  *
- * @param string $template Template location.
- * @param mixed  $data     Passed data to template.
+ * @param string $template       Template location.
+ * @param mixed  $data           Passed data to template.
+ * @param bool   $is_direct_path When the $template is a direct file path. Useful if we use tiga-router on a plugin instead of theme.
  */
-function tiga_set_template( $template, $data ) {
-	TigaTemplate::init( $template, $data );
+function tiga_set_template( $template, $data, $is_direct_path = false ) {
+	TigaTemplate::init( $template, $data, $is_direct_path );
 }
 
 if ( ! function_exists( 'is_route' ) ) {
