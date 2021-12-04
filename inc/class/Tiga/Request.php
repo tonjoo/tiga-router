@@ -56,6 +56,10 @@ class Request {
 				$this->input[ str_replace( TIGA_VAR_PREFIX, '', $key ) ] = $value;
 			}
 		}
+		$raw = file_get_contents('php://input');
+		if ( 0 < strlen( $raw ) && $this->is_json( $raw ) ) {
+			$this->input = array_merge( $this->input, json_decode( $raw, true ) );
+		}
 		$this->file = $file;
 	}
 
@@ -175,6 +179,17 @@ class Request {
 	 */
 	public function allFiles() {
 		return $this->file;
+	}
+
+	/**
+	 * Check if string is a json
+	 * 
+	 * @param  string  $string String to check.
+	 * @return boolean         Is JSON.
+	 */
+	protected function is_json( $string ) {
+		json_decode( $string );
+		return json_last_error() === JSON_ERROR_NONE;
 	}
 
 }
