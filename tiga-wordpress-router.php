@@ -64,12 +64,24 @@ add_action(
 );
 
 /**
+ * Cancel redirect to canonical URL.
+ */
+add_filter( 'redirect_canonical', function( $redirect, $requested_url ) {
+	global $current_route;
+	$unredirect_routes = TigaRoute::get_unredirect_routes();
+	if ( in_array( $current_route, $unredirect_routes ) ) {
+		return false;
+	}
+	return $redirect;
+}, 10, 2 );
+
+/**
  * An alias for tiga_set_template function
  *
  * @param string $template Template location.
  * @param mixed  $data     Passed data to template.
  */
-function set_tiga_template( $template, $data ) {
+function set_tiga_template( $template, $data = array() ) {
 	tiga_set_template( $template, $data );
 }
 
