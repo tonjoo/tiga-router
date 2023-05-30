@@ -18,10 +18,18 @@ class TigaRoute {
 	public static $routes;
 
 	/**
+	 * Page titles
+	 * 
+	 * @var array
+	 */
+	public static $page_titles;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
 		self::$routes = array();
+		self::$page_titles = array();
 	}
 
 	/**
@@ -30,12 +38,16 @@ class TigaRoute {
 	 * @param string $path     Route path.
 	 * @param string $method   Request method.
 	 * @param mixed  $callback Callback function.
+	 * @param array  $args 	   Additional args.
 	 */
-	public static function add( $path, $method = 'get', $callback = false ) {
+	public static function add( $path, $method = 'get', $callback = false, $args = array() ) {
 		if ( ! isset( self::$routes[ $path ] ) ) {
 			self::$routes[ $path ] = array();
 		}
-			self::$routes[ $path ][ $method ] = $callback;
+		self::$routes[ $path ][ $method ] = $callback;
+		if ( isset( $args['title'] ) ) {
+			self::$page_titles[ $path ] = $args['title'];
+		}
 	}
 
 	/**
@@ -43,10 +55,11 @@ class TigaRoute {
 	 *
 	 * @param  string $path     Route path.
 	 * @param  mixed  $callback Callback function.
+	 * @param  array  $args     Additional args.
 	 * @return mixed
 	 */
-	public static function get( $path, $callback = false ) {
-		return self::add( $path, 'get', $callback );
+	public static function get( $path, $callback = false, $args = array() ) {
+		return self::add( $path, 'get', $callback, $args );
 	}
 
 	/**
@@ -54,10 +67,11 @@ class TigaRoute {
 	 *
 	 * @param  string $path     Route path.
 	 * @param  mixed  $callback Callback function.
+	 * @param  array  $args     Additional args.
 	 * @return mixed
 	 */
-	public static function post( $path, $callback = false ) {
-		return self::add( $path, 'post', $callback );
+	public static function post( $path, $callback = false, $args = array() ) {
+		return self::add( $path, 'post', $callback, $args );
 	}
 
 	/**
@@ -65,10 +79,11 @@ class TigaRoute {
 	 *
 	 * @param  string $path     Route path.
 	 * @param  mixed  $callback Callback function.
+	 * @param  array  $args     Additional args.
 	 * @return mixed
 	 */
-	public static function put( $path, $callback = false ) {
-		return self::add( $path, 'put', $callback );
+	public static function put( $path, $callback = false, $args = array() ) {
+		return self::add( $path, 'put', $callback, $args );
 	}
 
 	/**
@@ -76,10 +91,11 @@ class TigaRoute {
 	 *
 	 * @param  string $path     Route path.
 	 * @param  mixed  $callback Callback function.
+	 * @param  array  $args     Additional args.
 	 * @return mixed
 	 */
-	public static function delete( $path, $callback = false ) {
-		return self::add( $path, 'delete', $callback );
+	public static function delete( $path, $callback = false, $args = array() ) {
+		return self::add( $path, 'delete', $callback, $args );
 	}
 
 	/**
@@ -89,6 +105,15 @@ class TigaRoute {
 	 */
 	public function get_routes() {
 		return self::$routes;
+	}
+
+	/**
+	 * Get page titles
+	 *
+	 * @return mixed
+	 */
+	public static function get_page_titles() {
+		return self::$page_titles;
 	}
 
 }

@@ -73,7 +73,7 @@ class TigaTemplate {
 	 */
 	public function render_template() {
 
-		$data = $this->data;
+		$data = is_array( $this->data ) ? extract( $this->data ) : $this->data;
 		$new_template = locate_template( array( $this->template ) );
 
 		if ( '' != $new_template ) {

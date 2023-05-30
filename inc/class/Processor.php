@@ -30,14 +30,22 @@ class Processor {
 	private $routes;
 
 	/**
+	 * Page titles.
+	 *
+	 * @var array
+	 */
+	private $titles;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Router $router Router object.
 	 * @param array  $routes Routes.
 	 */
-	public function __construct( Router $router, array $routes = array() ) {
+	public function __construct( Router $router, array $routes = array(), array $titles = array() ) {
 		$this->router = $router;
 		$this->routes = $routes;
+		$this->titles = $titles;
 	}
 
 	/**
@@ -46,13 +54,14 @@ class Processor {
 	 * @param Router $router Router object.
 	 * @param array  $routes Routes.
 	 */
-	public static function init( Router $router, array $routes = array() ) {
-		$self = new self( $router, $routes );
+	public static function init( Router $router, array $routes = array(), array $titles = array() ) {
+		$self = new self( $router, $routes, $titles );
 
 		add_action( 'init', array( $self, 'register_routes' ) );
 		add_action( 'parse_request', array( $self, 'match_request' ) );
-
 		add_action( 'template_redirect', array( $self, 'call_route_hook' ) );
+		add_filter( 'pre_get_document_title', array( $self, 'set_document_title' ), 999999 );
+		add_filter( 'redirect_canonical', array( $self, 'prevent_redirect_canonical' ), 10, 2 );
 	}
 
 	/**
@@ -144,5 +153,45 @@ class Processor {
 			flush_rewrite_rules();
 			update_option( 'tiga_route_md5_hash', $route_list_hash, 'no' );
 		}
+	}
+
+	/**
+	 * Set document title
+	 * 
+	 * @param string $title Document title.
+	 */
+	public function set_document_title( $title ) {
+		if ( empty( $this->matched_route ) ) {
+			return $title;
+		}
+		$current_route = $this->matched_route->get_path();
+		if ( isset( $this->titles[ $current_route ] ) ) {
+			$request = new Tiga\Request();
+			$title   = $this->titles[ $current_route ];
+
+			// replace vars.
+			preg_match_all( '/\{(.*?)\}/', $title, $matches );
+			if ( isset( $matches[1] ) && ! empty( $matches[1] ) ) {
+				foreach ( $matches[1] as $var ) {
+					$replace = $request->has( $var ) ? $request->input( $var ) : '';
+					$title   = str_replace( '{' . $var . '}', $replace, $title );
+				}
+			}
+		}
+		return $title;
+	}
+
+	/**
+	 * Prevent canonical redirection
+	 * 
+	 * @param  boolean $redirect      Redirect (default to true).
+	 * @param  string  $requested_url Current URL/
+	 * @return boolean                Redirect.
+	 */
+	public function prevent_redirect_canonical( $redirect, $requested_url ) {
+		if ( apply_filters( 'tiga_prevent_canonical_redirect', true ) && ! empty( $this->matched_route ) ) {
+			$redirect = false;
+		}
+		return $redirect;
 	}
 }
