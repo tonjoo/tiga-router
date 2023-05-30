@@ -31,7 +31,7 @@ if ( ! function_exists( 'tiga_view' ) ) {
 	 * @param  string $filename View file name.
 	 * @param  mixed  $data     Passed data to template.
 	 */
-	function tiga_view( $filename, $data ) {
+	function tiga_view( $filename, $data = array() ) {
 		$path = defined( 'TIGA_VIEWS_PATH' ) ? TIGA_VIEWS_PATH : '';
 		TigaTemplate::init( $path . $filename . '.php', $data );
 	}
