@@ -54,15 +54,9 @@ add_action(
 		$tiga_route = new TigaRoute();
 		do_action( 'tiga_route' ); // get routes.
 		$router = new Router( 'tiga_route' );
-		$routes = array();
-		$route_list = $tiga_route->get_routes();
-		$title_list = $tiga_route->get_page_titles();
+		$routes = $tiga_route->get_routes();
 
-		foreach ( $route_list as $path => $callback ) {
-			$routes[ $path ] = new Route( $path, $callback );
-		}
-
-		Processor::init( $router, $routes, $title_list );
+		Processor::init( $router, $routes );
 	}
 );
 
