@@ -1,0 +1,6 @@
+# Dependencies
+/vendor
+
+# Auto-generated
+composer.lock
+.phpunit.result.cache

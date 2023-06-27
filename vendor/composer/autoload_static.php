@@ -6,27 +6,39 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit1c194a93880f716613b02f0b7c7dacd8
 {
-    public static $prefixesPsr0 = array (
-        'V' => 
+    public static $files = array (
+        '11298418fac2d36d6d38c7c3efc5b206' => __DIR__ . '/..' . '/10quality/wp-query-builder/src/Lib/functions.php',
+    );
+
+    public static $prefixLengthsPsr4 = array (
+        'T' => 
         array (
-            'Viocon' => 
-            array (
-                0 => __DIR__ . '/..' . '/usmanhalalit/viocon/src',
-            ),
+            'TenQuality\\WP\\Database\\' => 23,
+            'TenQuality\\Data\\' => 16,
         ),
-        'P' => 
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'TenQuality\\WP\\Database\\' => 
         array (
-            'Pixie' => 
-            array (
-                0 => __DIR__ . '/..' . '/usmanhalalit/pixie/src',
-            ),
+            0 => __DIR__ . '/..' . '/10quality/wp-query-builder/src',
         ),
+        'TenQuality\\Data\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/10quality/php-data-model/src',
+        ),
+    );
+
+    public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixesPsr0 = ComposerStaticInit1c194a93880f716613b02f0b7c7dacd8::$prefixesPsr0;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit1c194a93880f716613b02f0b7c7dacd8::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit1c194a93880f716613b02f0b7c7dacd8::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit1c194a93880f716613b02f0b7c7dacd8::$classMap;
 
         }, null, ClassLoader::class);
     }

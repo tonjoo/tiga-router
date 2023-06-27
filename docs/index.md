@@ -4,33 +4,43 @@ Tiga-Router is a WordPress router, our aim is to simplify building custom WordPr
 
 # Registering Routes
 
-Register desired routes using `TigaRoute` class.
+Register desired routes using `TigaRoute` class. Route registration must be done using a hook called `tiga_route`.
 
+```php
+TigaRoute::method( string $path, string|array $callback, array $args );
 ```
+
+- Available methods: get, post, put, delete.
+- $path & $callback are mandatory. While $args is optional
+
+Example:
+
+```php
 function register_theme_routes() {
-	TigaRoute::get( '/items/new', 'item_new');
-	TigaRoute::post( '/items/create', 'item_create');
-	TigaRoute::get( '/items/{id:num}', 'item_edit');
-	TigaRoute::post( '/items/{id:num}', 'item_update');
-	TigaRoute::delete( '/items/{id:num}', 'item_delete');
-	TigaRoute::get('/items', 'item_index');
+	TigaRoute::get( '/items/new', 'item_new' );
+	TigaRoute::post( '/items/create', 'item_create' );
+	TigaRoute::get( '/items/{id:num}', 'item_edit' );
+	TigaRoute::put( '/items/{id:num}', 'item_update' );
+	TigaRoute::delete( '/items/{id:num}', 'item_delete' );
+	TigaRoute::get('/items', 'item_index' );
 }
-add_action( 'tiga_route', 'register_theme_routes');
+add_action( 'tiga_route', 'register_theme_routes' );
 ```
 
 ## Class based callback
 
 For class function callback, make sure no namespace is used. Or if it is used make used make sure it is loaded properly.
 
-
-```
+```php
 function register_theme_routes() {
-
 	// call method inside class
-	TigaRoute::get( '/items/new', array('class_name','method_name') );
-
+	TigaRoute::get( '/items/new', array( 'class_name', 'method_name' ) );
+	// or
+	$controller = new Class_Name();
+	TigaRoute::get( '/items/new', array( $controller, 'method_name' ) );
+	// or
+	TigaRoute::get( '/items/new', array( $this, 'method_name' ) );
 }
-
 add_action( 'tiga_route', 'register_theme_routes');
 ```
 
@@ -39,14 +49,11 @@ add_action( 'tiga_route', 'register_theme_routes');
 Tiga Router is using route hash to conditionaly flush rewrite rules. However this come with some caveat : Do not make conditional route registration. 
 
 
-```
-
+```php
 // Example only , do not do this
-
 if( is_admin() ) {
 	TigaRoute::get( '/items/new', 'item_new');	
 }
-
 TigaRoute::get( '/items/list', 'item_list');
 ```
 
@@ -62,76 +69,133 @@ When the route hash is different, it will flush WordPress rewrite rules each tim
 
 or you can use any regular expression, exp: `:[a-z]+`
 
-## Controller
+### Route grouping
+
+Routes with same path can be grouped into one. For example:
+
+```php
+TigaRoute::group( '/items', function() {
+    TigaRoute::get( '/list', 'item_list' );
+    TigaRoute::post( '/new', 'item_new' );
+} );
+// same as:
+TigaRoute::get( '/items/list', 'item_list' );
+TigaRoute::post( '/items/new', 'item_new' );
+```
+
+### Set Page Title
+
+Page title can be set easily while registering the route. Example:
+
+```php
+TigaRoute::get( '/items/list', 'item_list', array( 'title' => 'All Items - Your Site' );
+
+// route parameter value also can be passed to title
+TigaRoute::get( '/items/{id:num}', 'item_detail', array( 'title' => 'Item no {id} - Your Site' );
+```
+
+### Translation Route (Polylang Integration)
+
+If your site are using Polylang, you can set a translation route using this simple args:
+```php
+TigaRoute::get( '/items/list', 'item_list', array( 'polylang' => true ) );
+```
+This args will duplicate the route into translation routes based on Polylang configuration. For example, if your site are using english and indonesian, the registered routes will be:
+```
+/en/items/list
+/id/items/list
+```
+All those routes will have same callback but with different language loaded.
+
+## Controller & View
 
 The registered route will run a function callback.  
 
-```
-// executed on '/items' route
-function item_index($request) {
-    $data = $request->all();
-	set_tiga_template( 'page-index.php', $data);
+```php
+// route registration.
+function register_theme_routes() {
+    TigaRoute::get( '/items/{id:num}', 'item_detail' );
+}
+add_action( 'tiga_route', 'register_theme_routes' );
+
+// callback controller
+function item_detail( $request ) {
+
+    // getting parameter from url.
+    $id = $request->input('id');
+    $data = array(
+        'id' => $id,
+        'title' => get_the_title( $id )
+    );
+    
+    // load a view file and passing data.
+	set_tiga_template( 'page-index.php', $data );
 }
 ```
 
-## Getting Route Parameter 
+Passed data should be formatted as array, and can be accessed directly from view file using its index name. Example: `$id` and `$title`
+
+### Getting Route Parameter 
 
 Use the `$request` object to access variable in the current request. The `$request` object also provide a function to sanitize the input.
 
-### `$request->all()`
+#### `$request->all()`
 
 - return (array) -> get all inputs
 
-### `$request->input( $key, $default )`
+#### `$request->input( $key, $default )`
 
 - $key (string) (required) -> input name
 - $default (boolean) (optional) (default:false) -> set default value for input
 - return (mixed) -> get input value
 
-### `$request->file( $key )`
+#### `$request->file( $key )`
 
 - $key (string) (required) -> file name
 - return (boolean) -> return true if input key exists
 
-### `$request->has( $key )`
+#### `$request->has( $key )`
 
 - $key (string) (required) -> input name
 - return (boolean) -> return true if input key exists
 
-### `$request->hasFile( $key )`
+#### `$request->hasFile( $key )`
 
 - $key (string) (required) -> file name
 - return (boolean) -> return true if input key exists
 
-# Helper Class and Function
+# Tiga CLI
 
-## Page Template
+### Generate starter files
 
-You can call a page template (theme page template) on a `Controller` using the `set_tiga_template` function.
+Run this command on your wordpress installation:
+```
+wp tiga init
+```
+This command will generate starter files directly on your active theme. The starter files will be formatted as a MVC app which contains route, controllers, model and view file.
 
-### `set_tiga_template($template_name, $data)`
-- $template_name (string) template name / file name
-- $data (mixed) -> variable that passed to template
+### View all registered routes
 
-## Route Check
+This command will shows all registered routes
 
-You can check if current page is a specific route using `is_route` function. Returns boolean `true` if route is matched.
+```
+wp tiga list
+```
 
-### `is_route($route)`
-- $route (string) registered route.
+# Helper Functions
 
-## Set 404
-
-You can manually set a page to 404 page using `tiga_set_404` function.
-
-### `tiga_set_404()`
-
+- `is_tiga()` - check if current page is a tiga page.
+- `tiga_is_route( string $route )` - check if current page is matched with given route.
+- `tiga_is_group( string $route )` -  check if current page is within a route group.
+- `tiga_set_404()` - throw the route to 404 page.
+- `tiga_set_401( string $message = '401 Unauthorized' )` - throw the route to 401.
+- `tiga_set_403( string $message = '403 Forbidden' )` - throw the route to 403.
 
 ## Pagination 
 
 Built in pagination class is on `Tiga\Pagination`
 
-```
+```php
 $pagination = new \Tiga\Pagination;
 
 // set up pagination parameter
@@ -154,7 +218,7 @@ $pagination->render();
 
 The pagination output can be customized
 
-```
+```php
 $config['rows']   		  = // Total Row from the database
 $config['per_page']       = 10;
 $config['per_page']       = 0; // first page
@@ -195,7 +259,7 @@ $config['start_page']     = 0;
 
 Session wrapper class is on `Tiga\Session`, based on `WP Session Manager` plugin.
 
-```
+```php
 $session = new \Tiga\Session;
 
 $sesion->set('key',$value);
@@ -233,20 +297,23 @@ How to use `$_SESSION` instead of `WP Session` on wrapper class:
 define( 'TIGA_SESSION', '$_SESSION' );
 ```
 
-# Query Builder: Pixie
+# Query Builder
 
-Pixie is a database query builder for PHP created by [Muhammad Usman](https://github.com/usmanhalalit)
+Tiga are using Wordpress Query Builder Library by  [10quality](https://github.com/10quality/wp-query-builder)
 
-Pixie has included to Tiga Router. Below codes will show you how to use Pixie on Tiga Router:
+This library has included to Tiga Router. Below codes will show you how to use query builder on Tiga Router:
 
+```php
+$query = wp_query_builder()
+	->from( 'posts' )
+	->where( [
+		"post_type" => "post",
+		"post_status" => "publish"
+	] )
+	->get();
 ```
-TigaPixie::get('WP_PX');
-$query = WP_PX::table('items')->select('*');
-$items = $query->get();
 
-```
-
-More about Pixie, visit: https://github.com/usmanhalalit/pixie
+Please refer to their documentation, visit: [https://github.com/10quality/wp-query-builder/wiki](https://github.com/10quality/wp-query-builder/wiki)
 
 
 # Handle Ajax Request
@@ -261,10 +328,7 @@ add_action( 'tiga_route', 'register_theme_routes');
 
 function ajax_sample($request) {
 
-    echo $json;
-
-    header('Content-type: application/json');
-    die();
+    wp_send_json( $json );
 }
 ```
 

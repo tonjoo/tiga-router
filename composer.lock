@@ -1,37 +1,35 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c501a81dbd8d5e2015839524ef1f99b",
+    "content-hash": "637529221842b76071f80c62c6a2b627",
     "packages": [
         {
-            "name": "usmanhalalit/pixie",
-            "version": "2.x-dev",
+            "name": "10quality/php-data-model",
+            "version": "v1.0.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/usmanhalalit/pixie.git",
-                "reference": "648090e2d967a4a4de6c78bc465790217785facb"
+                "url": "https://github.com/10quality/php-data-model.git",
+                "reference": "dea1c20d2100478bb7c929322e49f00b20c9d6d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/usmanhalalit/pixie/zipball/648090e2d967a4a4de6c78bc465790217785facb",
-                "reference": "648090e2d967a4a4de6c78bc465790217785facb",
+                "url": "https://api.github.com/repos/10quality/php-data-model/zipball/dea1c20d2100478bb7c929322e49f00b20c9d6d8",
+                "reference": "dea1c20d2100478bb7c929322e49f00b20c9d6d8",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0",
-                "usmanhalalit/viocon": "1.0.*@dev"
+                "php": ">=5.4"
             },
             "require-dev": {
-                "mockery/mockery": "0.9.4",
-                "phpunit/phpunit": "^4.8"
+                "phpunit/phpunit": "9.*"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Pixie": "src/"
+                "psr-4": {
+                    "TenQuality\\Data\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -40,52 +38,54 @@
             ],
             "authors": [
                 {
-                    "name": "Muhammad Usman",
-                    "email": "hi@usman.it",
-                    "role": "Developer"
+                    "name": "10 Quality",
+                    "email": "info@10quality.com"
                 },
                 {
-                    "name": "Pavel Puchkin",
-                    "email": "i@neoascetic.me",
-                    "role": "Developer"
+                    "name": "Cami M",
+                    "email": "info@10quality.com"
                 }
             ],
-            "description": "A lightweight, expressive, framework agnostic query builder for PHP.",
-            "homepage": "https://github.com/usmanhalalit/pixie",
+            "description": "PHP Library that provides generic and scalable Data Models (abstract model class) for any type of data handling.",
+            "homepage": "https://github.com/10quality/php-data-model",
             "keywords": [
-                "database",
-                "mysql",
-                "postgresql",
-                "query builder",
-                "sql",
-                "sqlite"
+                "data",
+                "models"
             ],
-            "time": "2017-10-17T07:17:04+00:00"
+            "support": {
+                "issues": "https://github.com/10quality/php-data-model/issues",
+                "source": "https://github.com/10quality/php-data-model/tree/v1.0.3"
+            },
+            "time": "2023-01-05T16:44:06+00:00"
         },
         {
-            "name": "usmanhalalit/viocon",
-            "version": "1.0.1",
+            "name": "10quality/wp-query-builder",
+            "version": "v1.0.13",
             "source": {
                 "type": "git",
-                "url": "https://github.com/usmanhalalit/viocon.git",
-                "reference": "0878afee16f15355971fb95bf3c6d297aceff35d"
+                "url": "https://github.com/10quality/wp-query-builder.git",
+                "reference": "4fab2210761cb321313ac894ce5b64ebaefba328"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/usmanhalalit/viocon/zipball/0878afee16f15355971fb95bf3c6d297aceff35d",
-                "reference": "0878afee16f15355971fb95bf3c6d297aceff35d",
+                "url": "https://api.github.com/repos/10quality/wp-query-builder/zipball/4fab2210761cb321313ac894ce5b64ebaefba328",
+                "reference": "4fab2210761cb321313ac894ce5b64ebaefba328",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "10quality/php-data-model": "^1.0",
+                "php": ">=5.4"
             },
             "require-dev": {
-                "phpunit/phpunit": "3.7.*"
+                "phpunit/phpunit": "9.*"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Viocon": "src/"
+                "files": [
+                    "src/Lib/functions.php"
+                ],
+                "psr-4": {
+                    "TenQuality\\WP\\Database\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -94,30 +94,39 @@
             ],
             "authors": [
                 {
-                    "name": "Muhammad Usman",
-                    "email": "hi@usman.it",
-                    "role": "Developer"
+                    "name": "Alejandro Mostajo",
+                    "email": "amostajo@gmail.com"
+                },
+                {
+                    "name": "Hyper Tribal",
+                    "email": "grow@hypertribal.com"
+                },
+                {
+                    "name": "10 Quality",
+                    "email": "info@10quality.com"
                 }
             ],
-            "description": "A simple and flexible Dependency Injection container for PHP.",
-            "homepage": "https://github.com/usmanhalalit/viocon",
+            "description": "Wordpress Query Builder class library for custom models and data querying.",
             "keywords": [
-                "container",
-                "di",
-                "ioc",
-                "test"
+                "database",
+                "models",
+                "query builder",
+                "wordpress"
             ],
-            "time": "2013-07-13T19:54:56+00:00"
+            "support": {
+                "issues": "https://github.com/10quality/wp-query-builder/issues",
+                "source": "https://github.com/10quality/wp-query-builder/tree/v1.0.13"
+            },
+            "time": "2023-01-05T18:39:22+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "usmanhalalit/pixie": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
 }

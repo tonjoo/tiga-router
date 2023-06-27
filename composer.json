@@ -1,6 +1,6 @@
 {
     "name": "tonjoo/tiga-router",
     "require": {
-        "usmanhalalit/pixie": "2.*@dev"
+        "10quality/wp-query-builder": "^1.0"
     }
 }

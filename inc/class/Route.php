@@ -27,6 +27,8 @@ class Route {
 	 */
 	private $methods;
 
+	private $attributes;
+
 	/**
 	 * Constructor.
 	 *
@@ -37,11 +39,12 @@ class Route {
 
 		$this->path = $path;
 
-		foreach ( $data as $method => $callback ) {
+		foreach ( $data as $method => $args ) {
 
 			if ( in_array( $method, array( 'get', 'post', 'put', 'delete' ), true ) ) {
-				if ( $callback ) { // callback.
-					$this->hook[ $method ] = $callback;
+				if ( $args['callback'] ) { // callback.
+					$this->hook[ $method ]       = $args['callback'];
+					$this->attributes[ $method ] = $args['attributes'];
 				}
 				$this->methods[] = $method;
 			}
@@ -85,6 +88,10 @@ class Route {
 	 */
 	public function has_hook( $method = 'get' ) {
 		return ! empty( $this->hook[ $method ] );
+	}
+
+	public function get_attributes( $method = 'get' ) {
+		return isset( $this->attributes[ $method ] ) ? $this->attributes[ $method ] : false;
 	}
 
 }
