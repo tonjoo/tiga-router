@@ -74,8 +74,9 @@ class Processor {
 			return;
 		}
 
-		$callback = $this->matched_route->get_hook( $method );
-		$path     = $this->matched_route->get_path();
+		$callback   = $this->matched_route->get_hook( $method );
+		$path       = $this->matched_route->get_path();
+		$attributes = $this->matched_route->get_attributes();
 
 		if ( is_callable( $callback ) ) {
 			add_filter(
@@ -85,6 +86,10 @@ class Processor {
 					return $classes;
 				}
 			);
+
+			if ( isset( $attributes['lang'] ) ) {
+				do_action( 'wpml_switch_language', $attributes['lang'] );
+			}
 
 			if( is_array( $callback ) ) {
 				$callbackClass = new $callback[0];
@@ -225,6 +230,9 @@ class Processor {
 			}
 		}
 
+		if ( isset( $_GET ) && ! empty( $_GET ) ) {
+			return add_query_arg( wp_unslash( $_GET ), home_url( $path ) );
+		}
 		return home_url( $path );
 	}
 }
