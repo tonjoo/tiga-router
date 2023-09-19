@@ -173,8 +173,8 @@ class Processor {
 			return $title;
 		}
 		$attributes = $this->matched_route->get_attributes();
+		$request    = new Tiga\Request();
 		if ( isset( $attributes['title'] ) ) {
-			$request = new Tiga\Request();
 			$title   = $attributes['title'];
 
 			// replace vars.
