@@ -120,6 +120,78 @@ if ( ! function_exists( 'tiga_get_translation_route' ) ) {
 	}
 }
 
+if ( ! function_exists('tiga_set_seo') ) {
+	/**
+	 * SEO args
+	 *
+	 * @param array $args SEO args.
+	 */
+	function tiga_set_seo( $args ) {
+		$title       = isset( $args['title'] ) && ! empty( $args['title'] ) ? $args['title'] : '';
+		$description = isset( $args['description'] ) && ! empty( $args['description'] ) ? $args['description'] : '';
+		$image       = isset( $args['image'] ) && ! empty( $args['image'] ) ? $args['image'] : '';
+		$url         = isset( $args['url'] ) && ! empty( $args['url'] ) ? $args['url'] : '';
+		$canonical   = isset( $args['canonical'] ) && ! empty( $args['canonical'] ) ? $args['canonical'] : '';
+		$keywords    = isset( $args['keywords'] ) && ! empty( $args['keywords'] ) ? $args['keywords'] : '';
+		$robots      = isset( $args['robots'] ) && ! empty( $args['robots'] ) ? $args['robots'] : '';
+
+		// rankmath integration.
+		if ( ! empty( $title ) ) {
+			add_filter( 'rank_math/frontend/title', function() use ( $title ) {
+				return $title;
+			} );
+		}
+		if ( ! empty( $description ) ) {
+			add_filter( 'rank_math/frontend/description', function() use ( $description ) {
+				return $description;
+			} );
+		}
+		if ( ! empty( $image ) ) {
+			add_filter( 'rank_math/opengraph/facebook/image', function() use ( $image ) {
+				return $image;
+			} );
+			add_filter( 'rank_math/opengraph/twitter/image', function() use ( $image ) {
+				return $image;
+			} );
+		}
+		if ( ! empty( $url ) ) {
+			add_filter( 'rank_math/opengraph/url', function() use ( $url ) {
+				return $url;
+			} );
+		}
+		if ( ! empty( $canonical ) ) {
+			add_filter( 'rank_math/frontend/canonical', function() use ( $canonical ) {
+				return $canonical;
+			} );
+		}
+		if ( ! empty( $keywords ) ) {
+			add_filter( 'rank_math/frontend/keywords', function() use ( $keywords ) {
+				return $keywords;
+			} );
+		}
+		if ( ! empty( $robots ) ) {
+			add_filter( 'rank_math/frontend/robots', function() use ( $robots ) {
+				return $robots;
+			} );
+		}
+	}
+}
+
+if ( ! function_exists('tiga_set_title') ) {
+	/**
+	 * Set page title
+	 *
+	 * @param string $title Page title.
+	 */
+	function tiga_set_title( $title ) {
+		if ( ! empty( $title ) ) {
+			add_filter( 'pre_get_document_title', function () use ( $title ) {
+				return $title;
+			}, 999999 );
+		}
+	}
+}
+
 if ( ! function_exists( 'tiga_set_404' ) ) {
 	/**
 	 * Set page to 404
